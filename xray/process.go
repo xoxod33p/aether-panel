@@ -13,6 +13,7 @@ import (
 	"io/fs"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"runtime"
 	"strings"
@@ -22,24 +23,38 @@ import (
 
 var trafficRegex = regexp.MustCompile("(inbound|outbound)>>>([^>]+)>>>traffic>>>(downlink|uplink)")
 
+func getBinDir() string {
+	if fi, err := os.Stat("bin"); err == nil && fi.IsDir() {
+		return "bin"
+	}
+	if execPath, err := os.Executable(); err == nil {
+		execDir := filepath.Dir(execPath)
+		candidate := filepath.Join(execDir, "bin")
+		if fi, err := os.Stat(candidate); err == nil && fi.IsDir() {
+			return candidate
+		}
+	}
+	return "bin"
+}
+
 func GetBinaryName() string {
 	return fmt.Sprintf("xray-%s-%s", runtime.GOOS, runtime.GOARCH)
 }
 
 func GetBinaryPath() string {
-	return "bin/" + GetBinaryName()
+	return filepath.Join(getBinDir(), GetBinaryName())
 }
 
 func GetConfigPath() string {
-	return "bin/config.json"
+	return filepath.Join(getBinDir(), "config.json")
 }
 
 func GetGeositePath() string {
-	return "bin/geosite.dat"
+	return filepath.Join(getBinDir(), "geosite.dat")
 }
 
 func GetGeoipPath() string {
-	return "bin/geoip.dat"
+	return filepath.Join(getBinDir(), "geoip.dat")
 }
 
 func stopProcess(p *Process) {
@@ -152,12 +167,12 @@ func (p *process) Start() (err error) {
 
 	data, err := json.MarshalIndent(p.config, "", "  ")
 	if err != nil {
-		return common.NewErrorf("生成 xray 配置文件失败: %v", err)
+		return common.NewErrorf("failed to generate xray config: %v", err)
 	}
 	configPath := GetConfigPath()
 	err = os.WriteFile(configPath, data, fs.ModePerm)
 	if err != nil {
-		return common.NewErrorf("写入配置文件失败: %v", err)
+		return common.NewErrorf("failed to write config file: %v", err)
 	}
 
 	cmd := exec.Command(GetBinaryPath(), "-c", configPath)

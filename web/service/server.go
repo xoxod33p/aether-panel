@@ -108,7 +108,11 @@ func (s *ServerService) GetStatus(lastStatus *Status) *Status {
 		status.Swap.Total = swapInfo.Total
 	}
 
-	distInfo, err := disk.Usage("/")
+	rootPath := "/"
+	if runtime.GOOS == "windows" {
+		rootPath = "C:\\"
+	}
+	distInfo, err := disk.Usage(rootPath)
 	if err != nil {
 		logger.Warning("get dist usage failed:", err)
 	} else {
@@ -283,7 +287,11 @@ func (s *ServerService) UpdateXray(version string) error {
 		return err
 	}
 
-	err = copyZipFile("xray", xray.GetBinaryPath())
+	xrayBinInZip := "xray"
+	if runtime.GOOS == "windows" {
+		xrayBinInZip = "xray.exe"
+	}
+	err = copyZipFile(xrayBinInZip, xray.GetBinaryPath())
 	if err != nil {
 		return err
 	}

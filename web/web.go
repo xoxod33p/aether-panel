@@ -17,6 +17,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -45,7 +46,8 @@ type wrapAssetsFS struct {
 }
 
 func (f *wrapAssetsFS) Open(name string) (fs.File, error) {
-	file, err := f.FS.Open("assets/" + name)
+	cleanPath := path.Clean("assets/" + strings.TrimPrefix(name, "/"))
+	file, err := f.FS.Open(cleanPath)
 	if err != nil {
 		return nil, err
 	}
@@ -254,6 +256,10 @@ func (s *Server) initI18n(engine *gin.Engine) error {
 	var localizer *i18n.Localizer
 
 	engine.FuncMap["i18n"] = func(key string, params ...string) (string, error) {
+		loc := localizer
+		if loc == nil {
+			loc = i18n.NewLocalizer(bundle, "en")
+		}
 		names := findI18nParamNames(key)
 		if len(names) != len(params) {
 			return "", common.NewError("find names:", names, "---------- params:", params, "---------- num not equal")
@@ -262,7 +268,7 @@ func (s *Server) initI18n(engine *gin.Engine) error {
 		for i := range names {
 			templateData[names[i]] = params[i]
 		}
-		return localizer.Localize(&i18n.LocalizeConfig{
+		return loc.Localize(&i18n.LocalizeConfig{
 			MessageID:    key,
 			TemplateData: templateData,
 		})

@@ -19,7 +19,7 @@ yellow() {
     echo -e "\033[33m\033[01m$1\033[0m"
 }
 
-REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "'amazon linux'" "fedora", "alpine")
+REGEX=("debian" "ubuntu" "centos|red hat|kernel|oracle linux|alma|rocky" "amazon linux" "fedora" "alpine")
 RELEASE=("Debian" "Ubuntu" "CentOS" "CentOS" "Fedora" "Alpine")
 PACKAGE_UPDATE=("apt-get update" "apt-get update" "yum -y update" "yum -y update" "yum -y update" "apk update -f")
 PACKAGE_INSTALL=("apt -y install" "apt -y install" "yum -y install" "yum -y install" "yum -y install" "apk add -f")
@@ -109,6 +109,7 @@ install_base(){
 download_aether_vpn(){
     if [ $# == 0 ]; then
         last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') || last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-panel/main/config/version 2>/dev/null)
+        last_version=$(echo "$last_version" | tr -d ' \r\n')
         if [[ -z "$last_version" ]]; then
             red "Detecting the Aether VPN version failed, please make sure your server can connect to GitHub API"
             rm -f install.sh

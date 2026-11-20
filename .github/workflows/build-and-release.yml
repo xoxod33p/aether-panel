@@ -1,0 +1,89 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish as a GitHub Release (requires tag or draft release)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Check code formatting & build verification
+        run: |
+          go vet ./...
+
+      - name: Build Linux amd64 package
+        run: |
+          mkdir -p dist/staging_amd64/aether-vpn/bin
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/staging_amd64/aether-vpn/aether-vpn main.go
+          cp aether-vpn.service dist/staging_amd64/aether-vpn/
+          cp aether-vpn.sh dist/staging_amd64/aether-vpn/
+          cp bin/geoip.dat dist/staging_amd64/aether-vpn/bin/
+          cp bin/geosite.dat dist/staging_amd64/aether-vpn/bin/
+          cp bin/xray-linux-amd64 dist/staging_amd64/aether-vpn/bin/
+          chmod +x dist/staging_amd64/aether-vpn/aether-vpn dist/staging_amd64/aether-vpn/aether-vpn.sh dist/staging_amd64/aether-vpn/bin/xray-linux-amd64
+          tar -czvf aether-vpn-linux-amd64.tar.gz -C dist/staging_amd64 aether-vpn
+
+      - name: Build Linux arm64 package
+        run: |
+          mkdir -p dist/staging_arm64/aether-vpn/bin
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/staging_arm64/aether-vpn/aether-vpn main.go
+          cp aether-vpn.service dist/staging_arm64/aether-vpn/
+          cp aether-vpn.sh dist/staging_arm64/aether-vpn/
+          cp bin/geoip.dat dist/staging_arm64/aether-vpn/bin/
+          cp bin/geosite.dat dist/staging_arm64/aether-vpn/bin/
+          cp bin/xray-linux-arm64 dist/staging_arm64/aether-vpn/bin/
+          chmod +x dist/staging_arm64/aether-vpn/aether-vpn dist/staging_arm64/aether-vpn/aether-vpn.sh dist/staging_arm64/aether-vpn/bin/xray-linux-arm64
+          tar -czvf aether-vpn-linux-arm64.tar.gz -C dist/staging_arm64 aether-vpn
+
+      - name: Generate Checksums
+        run: |
+          sha256sum aether-vpn-linux-amd64.tar.gz aether-vpn-linux-arm64.tar.gz > sha256sums.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: aether-vpn-packages
+          path: |
+            aether-vpn-linux-amd64.tar.gz
+            aether-vpn-linux-arm64.tar.gz
+            sha256sums.txt
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            aether-vpn-linux-amd64.tar.gz
+            aether-vpn-linux-arm64.tar.gz
+            sha256sums.txt
+          generate_release_notes: true
+          draft: false
+          prerelease: false

@@ -13,7 +13,6 @@ const (
 
 func init() {
 	gob.Register(model.User{})
-	gob.Register(&model.User{})
 }
 
 func SetLoginUser(c *gin.Context, user *model.User) error {

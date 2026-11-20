@@ -1,0 +1,13 @@
+[Unit]
+Description=Aether VPN Service
+After=network.target
+Wants=network.target
+
+[Service]
+Environment="XRAY_VMESS_AEAD_FORCED=false"
+Type=simple
+WorkingDirectory=/usr/local/aether-vpn/
+ExecStart=/usr/local/aether-vpn/aether-vpn
+
+[Install]
+WantedBy=multi-user.target

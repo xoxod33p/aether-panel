@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<style>
+    @media (min-width: 769px) {
+        .ant-layout-content {
+            margin: 24px 16px;
+        }
+    }
+
+    .ant-col-sm-24 {
+        margin-top: 10px;
+    }
+
+    .progress-label {
+        margin-top: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .metric-badge {
+        font-weight: 600;
+        font-size: 14px;
+        color: #ffffff;
+        font-family: 'JetBrains Mono', monospace;
+    }
+</style>
+<body>
+<a-layout id="app" v-cloak>
+    {{ template "commonSider" . }}
+    <a-layout id="content-layout">
+        <a-layout-content>
+            <a-spin :spinning="spinning" :delay="200" :tip="loadingTip"/>
+            <transition name="list" appear>
+                <a-row>
+                    <a-card hoverable>
+                        <a-row :gutter="[16, 16]">
+                            <a-col :sm="24" :md="12">
+                                <a-row>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    stroke-color="#ffffff"
+                                                    :percent="status.cpu.percent"></a-progress>
+                                        <div class="progress-label">CPU</div>
+                                    </a-col>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    stroke-color="#ffffff"
+                                                    :percent="status.mem.percent"></a-progress>
+                                        <div class="progress-label">
+                                            RAM: [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
+                                        </div>
+                                    </a-col>
+                                </a-row>
+                            </a-col>
+                            <a-col :sm="24" :md="12">
+                                <a-row>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    stroke-color="#a3a3a3"
+                                                    :percent="status.swap.percent"></a-progress>
+                                        <div class="progress-label">
+                                            Swap: [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
+                                        </div>
+                                    </a-col>
+                                    <a-col :span="12" style="text-align: center">
+                                        <a-progress type="dashboard" status="normal"
+                                                    stroke-color="#ffffff"
+                                                    :percent="status.disk.percent"></a-progress>
+                                        <div class="progress-label">
+                                            Disk: [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
+                                        </div>
+                                    </a-col>
+                                </a-row>
+                            </a-col>
+                        </a-row>
+                    </a-card>
+                </a-row>
+            </transition>
+            <transition name="list" appear>
+                <a-row :gutter="[16, 16]" style="margin-top: 16px;">
+                    <a-col :sm="24" :md="12">
+                        <a-card hoverable>
+                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">Xray Core: </span>
+                            <a-tag>[[ status.xray.state.toUpperCase() ]]</a-tag>
+                            <a-tooltip v-if="status.xray.state === State.Error">
+                                <template slot="title">
+                                    <p v-for="line in status.xray.errorMsg.split('\n')">[[ line ]]</p>
+                                </template>
+                                <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                            </a-tooltip>
+                            <a-tag @click="openSelectV2rayVersion" style="cursor: pointer;">[[ status.xray.version ]]</a-tag>
+                            <a-tag @click="openSelectV2rayVersion" style="cursor: pointer; background: #ffffff !important; color: #000000 !important;">Switch Version</a-tag>
+                        </a-card>
+                    </a-col>
+                    <a-col :sm="24" :md="12">
+                        <a-card hoverable>
+                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">Uptime: </span>
+                            <a-tag>[[ formatSecond(status.uptime) ]]</a-tag>
+                            <a-tooltip>
+                                <template slot="title">
+                                    Uptime since last system boot
+                                </template>
+                                <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                            </a-tooltip>
+                        </a-card>
+                    </a-col>
+                    <a-col :sm="24" :md="12">
+                        <a-card hoverable>
+                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">System Load: </span>
+                            <span class="metric-badge">[[ status.loads[0] ]] | [[ status.loads[1] ]] | [[ status.loads[2] ]]</span>
+                        </a-card>
+                    </a-col>
+                    <a-col :sm="24" :md="12">
+                        <a-card hoverable>
+                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">TCP / UDP Connections: </span>
+                            <span class="metric-badge">[[ status.tcpCount ]] / [[ status.udpCount ]]</span>
+                            <a-tooltip>
+                                <template slot="title">
+                                    Total active connections across all interfaces
+                                </template>
+                                <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                            </a-tooltip>
+                        </a-card>
+                    </a-col>
+                    <a-col :sm="24" :md="12">
+                        <a-card hoverable>
+                            <a-row>
+                                <a-col :span="12">
+                                    <a-icon type="arrow-up" style="color: #ffffff; margin-right: 6px;"></a-icon>
+                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netIO.up) ]] / s</span>
+                                    <a-tooltip>
+                                        <template slot="title">
+                                            Current upload throughput
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                                    </a-tooltip>
+                                </a-col>
+                                <a-col :span="12">
+                                    <a-icon type="arrow-down" style="color: #a3a3a3; margin-right: 6px;"></a-icon>
+                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netIO.down) ]] / s</span>
+                                    <a-tooltip>
+                                        <template slot="title">
+                                            Current download throughput
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                                    </a-tooltip>
+                                </a-col>
+                            </a-row>
+                        </a-card>
+                    </a-col>
+                    <a-col :sm="24" :md="12">
+                        <a-card hoverable>
+                            <a-row>
+                                <a-col :span="12">
+                                    <a-icon type="cloud-upload" style="color: #ffffff; margin-right: 6px;"></a-icon>
+                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netTraffic.sent) ]]</span>
+                                    <a-tooltip>
+                                        <template slot="title">
+                                            Total uploaded data since system boot
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                                    </a-tooltip>
+                                </a-col>
+                                <a-col :span="12">
+                                    <a-icon type="cloud-download" style="color: #a3a3a3; margin-right: 6px;"></a-icon>
+                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netTraffic.recv) ]]</span>
+                                    <a-tooltip>
+                                        <template slot="title">
+                                            Total downloaded data since system boot
+                                        </template>
+                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                                    </a-tooltip>
+                                </a-col>
+                            </a-row>
+                        </a-card>
+                    </a-col>
+                </a-row>
+            </transition>
+        </a-layout-content>
+    </a-layout>
+    <a-modal id="version-modal" v-model="versionModal.visible" title="Switch Version"
+             :closable="true" @ok="() => versionModal.visible = false"
+             ok-text="Confirm" cancel-text="Cancel">
+        <h3 style="color: #ffffff;">Select the version to switch to:</h3>
+        <p style="color: #a3a3a3; font-size: 13px;">Please select carefully; older versions may have configuration incompatibilities.</p>
+        <template v-for="version, index in versionModal.versions">
+            <a-tag style="margin: 6px; cursor: pointer;" @click="switchV2rayVersion(version)">
+                [[ version ]]
+            </a-tag>
+        </template>
+    </a-modal>
+</a-layout>
+{{template "js" .}}
+<script>
+    const State = {
+        Running: "running",
+        Stop: "stop",
+        Error: "error",
+    }
+    Object.freeze(State);
+
+    class CurTotal {
+        constructor(current, total) {
+            this.current = current;
+            this.total = total;
+        }
+
+        get percent() {
+            if (this.total === 0) {
+                return 0;
+            }
+            return toFixed(this.current / this.total * 100, 2);
+        }
+
+        get color() {
+            return '#ffffff';
+        }
+    }
+
+    class Status {
+        constructor(data) {
+            this.cpu = new CurTotal(0, 0);
+            this.disk = new CurTotal(0, 0);
+            this.loads = [0, 0, 0];
+            this.mem = new CurTotal(0, 0);
+            this.netIO = {up: 0, down: 0};
+            this.netTraffic = {sent: 0, recv: 0};
+            this.swap = new CurTotal(0, 0);
+            this.tcpCount = 0;
+            this.udpCount = 0;
+            this.uptime = 0;
+            this.xray = {state: State.Stop, errorMsg: "", version: "", color: ""};
+
+            if (data == null) {
+                return;
+            }
+            this.cpu = new CurTotal(data.cpu, 100);
+            this.disk = new CurTotal(data.disk.current, data.disk.total);
+            this.loads = data.loads.map(load => toFixed(load, 2));
+            this.mem = new CurTotal(data.mem.current, data.mem.total);
+            this.netIO = data.netIO;
+            this.netTraffic = data.netTraffic;
+            this.swap = new CurTotal(data.swap.current, data.swap.total);
+            this.tcpCount = data.tcpCount;
+            this.udpCount = data.udpCount;
+            this.uptime = data.uptime;
+            this.xray = data.xray;
+        }
+    }
+
+    const versionModal = {
+        visible: false,
+        versions: [],
+        show(versions) {
+            this.visible = true;
+            this.versions = versions;
+        },
+        hide() {
+            this.visible = false;
+        },
+    };
+
+    const app = new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+            siderDrawer,
+            status: new Status(),
+            versionModal,
+            spinning: false,
+            loadingTip: 'Loading...',
+        },
+        methods: {
+            loading(spinning, tip = 'Loading...') {
+                this.spinning = spinning;
+                this.loadingTip = tip;
+            },
+            async getStatus() {
+                const msg = await HttpUtil.post('/server/status');
+                if (msg.success) {
+                    this.setStatus(msg.obj);
+                }
+            },
+            setStatus(data) {
+                this.status = new Status(data);
+            },
+            async openSelectV2rayVersion() {
+                this.loading(true);
+                const msg = await HttpUtil.post('server/getXrayVersion');
+                this.loading(false);
+                if (!msg.success) {
+                    return;
+                }
+                versionModal.show(msg.obj);
+            },
+            switchV2rayVersion(version) {
+                this.$confirm({
+                    title: 'Switch Xray Version',
+                    content: 'Are you sure you want to switch Xray version to ' + `${version}?`,
+                    okText: 'Confirm',
+                    cancelText: 'Cancel',
+                    onOk: async () => {
+                        versionModal.hide();
+                        this.loading(true, 'Installing, please do not refresh this page...');
+                        await HttpUtil.post(`/server/installXray/${version}`);
+                        this.loading(false);
+                    },
+                });
+            },
+        },
+        async mounted() {
+            while (true) {
+                try {
+                    await this.getStatus();
+                } catch (e) {
+                    console.error(e);
+                }
+                await PromiseUtil.sleep(2000);
+            }
+        },
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+version: '0.2.1'
+services:
+  aether-vpn:
+    image: xoxod33p/aether-vpn-panel:latest
+    container_name: aether-vpn
+    volumes:
+      - $PWD/db/:/etc/aether-vpn/
+      - $PWD/cert/:/root/cert/
+    restart: unless-stopped
+    network_mode: host

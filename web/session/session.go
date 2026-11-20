@@ -13,11 +13,14 @@ const (
 
 func init() {
 	gob.Register(model.User{})
+	gob.Register(&model.User{})
 }
 
 func SetLoginUser(c *gin.Context, user *model.User) error {
 	s := sessions.Default(c)
-	s.Set(loginUser, user)
+	if user != nil {
+		s.Set(loginUser, *user)
+	}
 	return s.Save()
 }
 
@@ -27,8 +30,13 @@ func GetLoginUser(c *gin.Context) *model.User {
 	if obj == nil {
 		return nil
 	}
-	user := obj.(model.User)
-	return &user
+	if user, ok := obj.(model.User); ok {
+		return &user
+	}
+	if user, ok := obj.(*model.User); ok {
+		return user
+	}
+	return nil
 }
 
 func IsLogin(c *gin.Context) bool {

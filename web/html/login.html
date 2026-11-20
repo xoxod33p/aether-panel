@@ -126,10 +126,15 @@
     .input-icon {
         position: absolute;
         right: 14px;
-        top: 35px;
+        top: 50%;
+        transform: translateY(-50%);
         color: #737373;
         font-size: 14px;
         pointer-events: none;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        z-index: 2;
     }
 
     .btn-submit {
@@ -189,18 +194,18 @@
             <div class="form-group">
                 <label class="form-label">Admin Username</label>
                 <div style="position: relative;">
-                    <a-input v-model.trim="user.username" placeholder="Enter admin username" autofocus></a-input>
+                    <a-input v-model="user.username" placeholder="Enter admin username" autofocus @pressEnter="login"></a-input>
                     <a-icon type="user" class="input-icon" />
                 </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Admin Password</label>
                 <div style="position: relative;">
-                    <a-input type="password" v-model.trim="user.password" placeholder="Enter admin password"></a-input>
+                    <a-input type="password" v-model="user.password" placeholder="Enter admin password" @pressEnter="login"></a-input>
                     <a-icon type="lock" class="input-icon" />
                 </div>
             </div>
-            <button type="submit" class="btn-submit" :disabled="loading || !user.username || !user.password">
+            <button type="submit" class="btn-submit" :disabled="loading">
                 <span>[[ loading ? 'Authenticating...' : 'Sign In' ]]</span>
                 <a-icon type="arrow-right" />
             </button>
@@ -221,15 +226,26 @@
         },
         methods: {
             async login() {
-                if (!this.user.username || !this.user.password) {
+                const inputs = document.querySelectorAll('.login-card input');
+                if (inputs.length >= 2) {
+                    if (!this.user.username && inputs[0].value) {
+                        this.user.username = inputs[0].value;
+                    }
+                    if (!this.user.password && inputs[1].value) {
+                        this.user.password = inputs[1].value;
+                    }
+                }
+                const username = (this.user.username || '').trim();
+                const password = this.user.password || '';
+                if (!username || !password) {
                     this.$message.warning('Please enter admin credentials');
                     return;
                 }
                 this.loading = true;
-                const msg = await HttpUtil.post('/login', this.user);
+                const msg = await HttpUtil.post(basePath + 'login', { username, password });
                 this.loading = false;
                 if (msg.success) {
-                    location.href = basePath + 'xui/';
+                    window.location.replace(basePath + 'xui/');
                 }
             }
         }

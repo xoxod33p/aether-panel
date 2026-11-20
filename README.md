@@ -5,9 +5,9 @@
 # Aether VPN Panel
 ### Modern, Ultra-Fast Xray & V2Ray Web Management Dashboard
 
-[![GitHub release](https://img.shields.io/github/v/release/xoxod33p/aether-vpn-panel?color=white&label=Release&style=flat-square)](https://github.com/xoxod33p/aether-vpn-panel/releases)
-[![License](https://img.shields.io/github/license/xoxod33p/aether-vpn-panel?color=white&style=flat-square)](LICENSE)
-[![Repo Size](https://img.shields.io/github/repo-size/xoxod33p/aether-vpn-panel?color=neutral&style=flat-square)](https://github.com/xoxod33p/aether-vpn-panel)
+[![GitHub release](https://img.shields.io/github/v/release/xoxod33p/aether-panel?color=white&label=Release&style=flat-square)](https://github.com/xoxod33p/aether-panel/releases)
+[![License](https://img.shields.io/github/license/xoxod33p/aether-panel?color=white&style=flat-square)](LICENSE)
+[![Repo Size](https://img.shields.io/github/repo-size/xoxod33p/aether-panel?color=neutral&style=flat-square)](https://github.com/xoxod33p/aether-panel)
 
 </div>
 
@@ -36,7 +36,7 @@
 Run this single command on your Linux VPS (Debian 9+, Ubuntu 16+, CentOS 7+, Fedora 29+):
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/xoxod33p/aether-panel/main/install.sh)
 ```
 
 ---
@@ -75,7 +75,7 @@ aether-vpn
    rm -rf /usr/local/aether-vpn/ /usr/bin/aether-vpn
    tar -zxvf aether-vpn-linux-amd64.tar.gz
    chmod +x aether-vpn/aether-vpn aether-vpn/bin/xray-linux-*
-   curl -Ls https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/aether-vpn.sh -o /usr/bin/aether-vpn
+   curl -Ls https://raw.githubusercontent.com/xoxod33p/aether-panel/main/aether-vpn.sh -o /usr/bin/aether-vpn
    chmod +x /usr/bin/aether-vpn
    cp -f aether-vpn/aether-vpn.service /etc/systemd/system/
    mv aether-vpn/ /usr/local/
@@ -93,7 +93,7 @@ docker run -itd --network=host \
     -v $PWD/db/:/etc/aether-vpn/ \
     -v $PWD/cert/:/root/cert/ \
     --name aether-vpn --restart=unless-stopped \
-    xoxod33p/aether-vpn-panel:latest
+    xoxod33p/aether-panel:latest
 ```
 
 ---

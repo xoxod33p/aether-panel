@@ -1,7 +1,7 @@
 version: '0.2.1'
 services:
   aether-vpn:
-    image: xoxod33p/aether-vpn-panel:latest
+    image: xoxod33p/aether-panel:latest
     container_name: aether-vpn
     volumes:
       - $PWD/db/:/etc/aether-vpn/

@@ -108,14 +108,14 @@ install_base(){
 
 download_aether_vpn(){
     if [ $# == 0 ]; then
-        last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-vpn-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') || last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/config/version 2>/dev/null)
+        last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') || last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-panel/main/config/version 2>/dev/null)
         if [[ -z "$last_version" ]]; then
             red "Detecting the Aether VPN version failed, please make sure your server can connect to GitHub API"
             rm -f install.sh
             exit 1
         fi
         yellow "Latest version of Aether VPN detected: ${last_version}, starting installation..."
-        wget -N --no-check-certificate -O /usr/local/aether-vpn-linux-$(archAffix).tar.gz https://github.com/xoxod33p/aether-vpn-panel/releases/download/${last_version}/aether-vpn-linux-$(archAffix).tar.gz
+        wget -N --no-check-certificate -O /usr/local/aether-vpn-linux-$(archAffix).tar.gz https://github.com/xoxod33p/aether-panel/releases/download/${last_version}/aether-vpn-linux-$(archAffix).tar.gz
         if [[ $? -ne 0 ]]; then
             red "Download failure, please make sure your server can connect and download files from GitHub"
             rm -f install.sh
@@ -123,7 +123,7 @@ download_aether_vpn(){
         fi
     else
         last_version=$1
-        url="https://github.com/xoxod33p/aether-vpn-panel/releases/download/${last_version}/aether-vpn-linux-$(archAffix).tar.gz"
+        url="https://github.com/xoxod33p/aether-panel/releases/download/${last_version}/aether-vpn-linux-$(archAffix).tar.gz"
         yellow "Starting installation Aether VPN $1"
         wget -N --no-check-certificate -O /usr/local/aether-vpn-linux-$(archAffix).tar.gz ${url}
         if [[ $? -ne 0 ]]; then
@@ -141,7 +141,7 @@ download_aether_vpn(){
     chmod +x aether-vpn bin/xray-linux-$(archAffix)
     cp -f aether-vpn.service /etc/systemd/system/
     
-    wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/aether-vpn.sh -O /usr/bin/aether-vpn
+    wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/aether-vpn.sh -O /usr/bin/aether-vpn
     chmod +x /usr/local/aether-vpn/aether-vpn.sh 2>/dev/null
     chmod +x /usr/bin/aether-vpn
 }

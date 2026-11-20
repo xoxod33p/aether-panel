@@ -88,7 +88,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/xoxod33p/aether-panel/main/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -107,14 +107,14 @@ update() {
             rm -rf /usr/local/aether-vpn/
         fi
         
-        last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-vpn-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') || last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/config/version)
+        last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') || last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-panel/main/config/version)
         if [[ -z "$last_version" ]]; then
             red "Detecting the Aether VPN version failed, please make sure your server can connect to the GitHub API"
             exit 1
         fi
         
         yellow "The latest version of Aether VPN is: ${last_version}, starting update..."
-        wget -N --no-check-certificate -O /usr/local/aether-vpn-linux-$(archAffix).tar.gz https://github.com/xoxod33p/aether-vpn-panel/releases/download/${last_version}/aether-vpn-linux-$(archAffix).tar.gz
+        wget -N --no-check-certificate -O /usr/local/aether-vpn-linux-$(archAffix).tar.gz https://github.com/xoxod33p/aether-panel/releases/download/${last_version}/aether-vpn-linux-$(archAffix).tar.gz
         if [[ $? -ne 0 ]]; then
             red "Download failure, please make sure your server can connect and download files from GitHub"
             exit 1
@@ -128,7 +128,7 @@ update() {
         chmod +x aether-vpn bin/xray-linux-$(archAffix)
         cp -f aether-vpn.service /etc/systemd/system/
         
-        wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/aether-vpn.sh -O /usr/bin/aether-vpn
+        wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/aether-vpn.sh -O /usr/bin/aether-vpn
         chmod +x /usr/local/aether-vpn/aether-vpn.sh 2>/dev/null
         chmod +x /usr/bin/aether-vpn
         
@@ -322,7 +322,7 @@ install_bbr() {
 }
 
 update_shell() {
-    wget -O /usr/bin/aether-vpn -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/aether-vpn.sh
+    wget -O /usr/bin/aether-vpn -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/aether-vpn.sh
     if [[ $? != 0 ]]; then
         echo ""
         red "Failed to download update script. Check server network."
@@ -567,7 +567,7 @@ show_menu() {
         13) check_install && disable_aether ;;
         14) update_geo ;;
         15) install_bbr ;;
-        16) wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-vpn-panel/main/acme.sh && bash acme.sh && before_show_menu ;;
+        16) wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/acme.sh && bash acme.sh && before_show_menu ;;
         17) open_ports ;;
         18) wget -N --no-check-certificate https://raw.githubusercontent.com/taffychan/warp/main/warp.sh && bash warp.sh && before_show_menu ;;
         *) red "Please enter a valid option [0-18]" ;;

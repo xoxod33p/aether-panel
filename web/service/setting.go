@@ -251,3 +251,27 @@ func (s *SettingService) UpdateAllSetting(allSetting *entity.AllSetting) error {
 	}
 	return common.Combine(errs...)
 }
+
+func (s *SettingService) GetTgbotenabled() (bool, error) {
+	val, err := s.getString("tgBotEnable")
+	if err != nil {
+		return false, nil
+	}
+	return strconv.ParseBool(val)
+}
+
+func (s *SettingService) SetTgbotenabled(status bool) error {
+	return s.setString("tgBotEnable", strconv.FormatBool(status))
+}
+
+func (s *SettingService) SetTgBotToken(tgBotToken string) error {
+	return s.setString("tgBotToken", tgBotToken)
+}
+
+func (s *SettingService) SetTgbotRuntime(tgBotRuntime string) error {
+	return s.setString("tgbotRuntime", tgBotRuntime)
+}
+
+func (s *SettingService) SetTgBotChatId(tgBotChatid int) error {
+	return s.setInt("tgBotChatId", tgBotChatid)
+}

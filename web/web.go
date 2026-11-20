@@ -212,7 +212,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 }
 
 func (s *Server) initI18n(engine *gin.Engine) error {
-	bundle := i18n.NewBundle(language.SimplifiedChinese)
+	bundle := i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	err := fs.WalkDir(i18nFS, "translation", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -276,7 +276,7 @@ func (s *Server) initI18n(engine *gin.Engine) error {
 
 	engine.Use(func(c *gin.Context) {
 		accept := c.GetHeader("Accept-Language")
-		localizer = i18n.NewLocalizer(bundle, accept)
+		localizer = i18n.NewLocalizer(bundle, accept, "en")
 		c.Set("localizer", localizer)
 		c.Next()
 	})

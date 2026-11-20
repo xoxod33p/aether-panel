@@ -4,7 +4,6 @@ import (
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"io/fs"
 	"os"
 	"path"
 	"aether-vpn/config"
@@ -43,10 +42,11 @@ func initSetting() error {
 
 func InitDB(dbPath string) error {
 	dir := path.Dir(dbPath)
-	err := os.MkdirAll(dir, fs.ModeDir)
+	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return err
 	}
+	os.Chmod(dir, 0755)
 
 	var gormLogger logger.Interface
 

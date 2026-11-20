@@ -195,10 +195,12 @@ install_aether_vpn() {
     download_aether_vpn $1
     
     cd
+    mkdir -p /etc/aether-vpn
+    chmod 755 /etc/aether-vpn
     if [[ -f /etc/aether-vpn.db.bak ]]; then
-        mkdir -p /etc/aether-vpn
         cp /etc/aether-vpn.db.bak /etc/aether-vpn/aether-vpn.db
     fi
+    [[ -f /etc/aether-vpn/aether-vpn.db ]] && chmod 644 /etc/aether-vpn/aether-vpn.db
     
     panel_config
     
@@ -209,7 +211,8 @@ install_aether_vpn() {
     
     cd $cur_dir
     rm -f install.sh
-    green "Aether VPN v${last_version} Installation / Upgrade Completed! Panel is running."
+    clean_version=${last_version#v}
+    green "Aether VPN v${clean_version} Installation / Upgrade Completed! Panel is running."
     echo -e ""
     echo -e "${GREEN} --------------------------------------------------------------------- ${PLAIN}"
     echo -e "${GREEN}      _         _   _               __     ______  _   _               ${PLAIN}"

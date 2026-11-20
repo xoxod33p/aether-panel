@@ -339,7 +339,10 @@ check_status() {
     if [[ ! -f /etc/systemd/system/aether-vpn.service ]]; then
         return 2
     fi
-    temp=$(systemctl status aether-vpn 2>/dev/null | grep Active | awk '{print $3}' | cut -d "(" -f2 | cut -d ")" -f1)
+    if systemctl is-active --quiet aether-vpn 2>/dev/null; then
+        return 0
+    fi
+    temp=$(systemctl status aether-vpn 2>/dev/null | grep -i "Active:" | awk '{print $3}' | tr -d '()')
     if [[ x"${temp}" == x"running" ]]; then
         return 0
     else
@@ -348,8 +351,7 @@ check_status() {
 }
 
 check_enabled() {
-    temp=$(systemctl is-enabled aether-vpn 2>/dev/null)
-    if [[ x"${temp}" == x"enabled" ]]; then
+    if systemctl is-enabled --quiet aether-vpn 2>/dev/null; then
         return 0
     else
         return 1
@@ -470,7 +472,13 @@ check_login_info(){
         v4=$(curl -s4m8 ip.gs -k)
     fi
     
-    config_port=$(/usr/local/aether-vpn/aether-vpn 2>&1 | grep tcp | awk '{print $5}' | sed "s/://g")
+    config_port=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "port:" | awk '{print $2}')
+    if [[ -z "$config_port" ]]; then
+        config_port=$(ss -ntlp 2>/dev/null | grep aether-vpn | awk '{print $4}' | awk -F: '{print $NF}')
+    fi
+    if [[ -z "$config_port" ]]; then
+        config_port="54321"
+    fi
 }
 
 show_usage() {

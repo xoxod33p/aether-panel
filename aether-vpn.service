@@ -8,6 +8,8 @@ Environment="XRAY_VMESS_AEAD_FORCED=false"
 Type=simple
 WorkingDirectory=/usr/local/aether-vpn/
 ExecStart=/usr/local/aether-vpn/aether-vpn
+Restart=on-failure
+RestartSec=3s
 
 [Install]
 WantedBy=multi-user.target

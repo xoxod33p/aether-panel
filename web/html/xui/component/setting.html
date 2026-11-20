@@ -1,18 +1,18 @@
 {{define "component/settingListItem"}}
-<a-list-item style="padding: 20px">
-    <a-row>
-        <a-col :lg="24" :xl="12">
+<a-list-item style="padding: 20px 24px;">
+    <a-row type="flex" align="middle" :gutter="[24, 16]" style="width: 100%;">
+        <a-col :xs="24" :sm="24" :md="12" :lg="12">
             <a-list-item-meta :title="title" :description="desc"/>
         </a-col>
-        <a-col :lg="24" :xl="12">
+        <a-col :xs="24" :sm="24" :md="12" :lg="12">
             <template v-if="type === 'text'">
-                <a-input :value="value" @input="$emit('input', $event.target.value)"></a-input>
+                <a-input :value="value" @input="$emit('input', $event.target.value)" style="width: 100%;"></a-input>
             </template>
             <template v-else-if="type === 'number'">
-                <a-input type="number" :value="value" @input="$emit('input', $event.target.value)"></a-input>
+                <a-input type="number" :value="value" @input="$emit('input', $event.target.value)" style="width: 100%;"></a-input>
             </template>
             <template v-else-if="type === 'textarea'">
-                <a-textarea :value="value" @input="$emit('input', $event.target.value)" :auto-size="{ minRows: 10, maxRows: 10 }"></a-textarea>
+                <a-textarea :value="value" @input="$emit('input', $event.target.value)" :auto-size="{ minRows: 10, maxRows: 12 }" style="width: 100%; font-family: monospace;"></a-textarea>
             </template>
         </a-col>
     </a-row>

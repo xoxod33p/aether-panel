@@ -376,33 +376,68 @@ body {
     padding: 16px 24px !important;
 }
 
-/* Drawer Handle for Mobile */
+/* Drawer Handle override */
+.ant-drawer-handle,
 .drawer-handle {
-    position: absolute;
-    top: 72px;
-    width: 42px;
-    height: 42px;
-    cursor: pointer;
-    z-index: 100;
-    text-align: center;
-    line-height: 42px;
-    font-size: 18px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #141414;
-    color: #fff;
-    right: -42px;
-    box-shadow: 4px 0 14px rgba(0, 0, 0, 0.6);
-    border: 1px solid var(--border-subtle);
-    border-left: none;
-    border-radius: 0 10px 10px 0;
+    display: none !important;
 }
 
-@media (min-width: 769px) {
-    .drawer-handle {
-        display: none;
-    }
+/* Settings Panel & Form Styling */
+.settings-panel {
+    background: #0a0a0a !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+.settings-panel .ant-list-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 20px 24px !important;
+}
+
+.settings-panel .ant-list-item:last-child {
+    border-bottom: none !important;
+}
+
+.settings-panel .ant-list-item-meta-title {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px;
+}
+
+.settings-panel .ant-list-item-meta-description {
+    color: var(--text-muted) !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+}
+
+.settings-panel .ant-input,
+.settings-panel .ant-input-number {
+    background-color: #141414 !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 10px !important;
+    color: #ffffff !important;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px !important;
+    height: 42px !important;
+    padding: 0 14px !important;
+    transition: all 0.2s ease;
+}
+
+.settings-panel .ant-input:focus,
+.settings-panel .ant-input-number-focused {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08) !important;
+    outline: none;
+}
+
+.settings-panel textarea.ant-input {
+    height: auto !important;
+    padding: 12px 14px !important;
+    line-height: 1.5;
 }
 
 /* Tabs */

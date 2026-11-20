@@ -28,7 +28,7 @@ var defaultValueMap = map[string]string{
 	"webKeyFile":         "",
 	"secret":             random.Seq(32),
 	"webBasePath":        "/",
-	"timeLocation":       "Asia/Shanghai",
+	"timeLocation":       "Asia/Colombo",
 	"tgBotEnable":        "false",
 	"tgBotToken":         "",
 	"tgbotRuntime":       "",
@@ -106,6 +106,10 @@ func (s *SettingService) GetAllSetting() (*entity.AllSetting, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if allSetting.TimeLocation == "" || allSetting.TimeLocation == "Asia/Shanghai" {
+		allSetting.TimeLocation = "Asia/Colombo"
 	}
 
 	return allSetting, nil
@@ -223,14 +227,12 @@ func (s *SettingService) GetBasePath() (string, error) {
 
 func (s *SettingService) GetTimeLocation() (*time.Location, error) {
 	l, err := s.getString("timeLocation")
-	if err != nil {
-		return nil, err
+	if err != nil || l == "" || l == "Asia/Shanghai" {
+		l = "Asia/Colombo"
 	}
 	location, err := time.LoadLocation(l)
 	if err != nil {
-		defaultLocation := defaultValueMap["timeLocation"]
-		logger.Errorf("location <%v> not exist, using default location: %v", l, defaultLocation)
-		return time.LoadLocation(defaultLocation)
+		location, _ = time.LoadLocation("Asia/Colombo")
 	}
 	return location, nil
 }

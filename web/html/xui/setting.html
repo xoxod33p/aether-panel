@@ -37,9 +37,9 @@
         <a-layout-content>
             <a-spin :spinning="spinning" :delay="500" tip="Loading...">
                 <a-space direction="vertical" size="large">
-                    <a-space direction="horizontal">
-                        <a-button type="primary" :disabled="saveBtnDisable" @click="updateAllSetting">Save Settings</a-button>
-                        <a-button type="danger" :disabled="!saveBtnDisable" @click="restartPanel">Restart Panel</a-button>
+                    <a-space direction="horizontal" style="margin-bottom: 4px;">
+                        <a-button type="primary" :disabled="saveBtnDisable" @click="updateAllSetting" icon="save">Save Settings</a-button>
+                        <a-button type="danger" :disabled="!saveBtnDisable" @click="restartPanel" icon="reload">Restart Panel</a-button>
                     </a-space>
                     <div class="settings-panel">
                         <a-tabs default-active-key="1" style="padding: 16px 20px 0;">

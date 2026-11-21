@@ -153,6 +153,11 @@ class DBInbound {
         const inbound = this.toInbound();
         return inbound.genLink(this.address, this.remark);
     }
+
+    genClientLink(client) {
+        const inbound = this.toInbound();
+        return inbound.genClientLink(client, this.address, this.remark);
+    }
 }
 
 class AllSetting {

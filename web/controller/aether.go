@@ -26,6 +26,7 @@ func (a *AetherController) initRouter(g *gin.RouterGroup) {
 
 	ag.GET("/", a.index)
 	ag.GET("/inbounds", a.inbounds)
+	ag.GET("/clients", a.clients)
 	ag.GET("/setting", a.setting)
 
 	a.inboundController = NewInboundController(ag)
@@ -36,6 +37,7 @@ func (a *AetherController) initRouter(g *gin.RouterGroup) {
 	xg.Use(a.checkLogin)
 	xg.GET("/", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "../aether/") })
 	xg.GET("/inbounds", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "../aether/inbounds") })
+	xg.GET("/clients", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "../aether/clients") })
 	xg.GET("/setting", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "../aether/setting") })
 	NewInboundController(xg)
 	NewSettingController(xg)
@@ -47,6 +49,10 @@ func (a *AetherController) index(c *gin.Context) {
 
 func (a *AetherController) inbounds(c *gin.Context) {
 	html(c, "inbounds.html", "Inbounds", nil)
+}
+
+func (a *AetherController) clients(c *gin.Context) {
+	html(c, "clients.html", "Clients & QR Links", nil)
 }
 
 func (a *AetherController) setting(c *gin.Context) {

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<style>
+    .clients-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .client-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 576px) {
+        .client-card-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .client-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .client-card:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    .client-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .client-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .client-meta {
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .client-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+    }
+
+    .client-subtitle {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .client-key-row {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-sm);
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 12px 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--text-dim);
+    }
+
+    .client-key-row:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+    }
+
+    .copy-btn-icon {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: color 0.15s;
+    }
+
+    .copy-btn-icon:hover {
+        color: var(--accent-cyan);
+    }
+
+    .client-usage-box {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        margin-bottom: 16px;
+    }
+
+    .client-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 14px;
+    }
+
+    .action-btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #00f2fe, #4facfe) !important;
+        border: none !important;
+        color: #0b0f17 !important;
+        font-weight: 700 !important;
+        border-radius: 6px !important;
+    }
+
+    .action-btn-secondary {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid var(--border-subtle) !important;
+        color: #ffffff !important;
+        border-radius: 6px !important;
+    }
+
+    .action-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: var(--border-strong) !important;
+    }
+</style>
+<body>
+<a-layout id="app" v-cloak>
+    {{template "commonSider" .}}
+    <a-layout id="content-layout">
+        {{template "commonHeader" .}}
+        <a-layout-content class="cyber-content">
+            <a-spin :spinning="loading" tip="Loading clients...">
+                <div class="clients-container">
+                    <!-- Top Telemetry & Controls Toolbar -->
+                    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px 24px; margin-bottom: 24px; box-shadow: var(--shadow-card);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                                <div>
+                                    <span style="font-size: 20px; font-weight: 800; color: #ffffff;">[[ filteredClients.length ]]</span>
+                                    <span style="color: var(--text-muted); font-size: 13px; margin-left: 6px;">Total Accounts</span>
+                                </div>
+                                <a-divider type="vertical" style="background: var(--border-subtle); height: 24px;"></a-divider>
+                                <div>
+                                    <span style="font-size: 20px; font-weight: 800; color: var(--accent-emerald);">[[ activeClientsCount ]]</span>
+                                    <span style="color: var(--text-muted); font-size: 13px; margin-left: 6px;">Active</span>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <a-radio-group v-model="filterProtocol" button-style="solid" size="small">
+                                    <a-radio-button value="all">ALL</a-radio-button>
+                                    <a-radio-button value="vless">VLESS</a-radio-button>
+                                    <a-radio-button value="vmess">VMESS</a-radio-button>
+                                    <a-radio-button value="trojan">TROJAN</a-radio-button>
+                                    <a-radio-button value="shadowsocks">SS</a-radio-button>
+                                </a-radio-group>
+
+                                <a-input-search placeholder="Search client name, UUID, port..." v-model="searchKey"
+                                                style="width: 260px;" allow-clear></a-input-search>
+                                
+                                <a-button icon="reload" @click="getInbounds" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #ffffff; border-radius: 6px;">
+                                    Refresh
+                                </a-button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Cards Grid -->
+                    <div v-if="filteredClients.length > 0" class="client-card-grid">
+                        <div v-for="(item, idx) in filteredClients" :key="idx" class="client-card">
+                            <div>
+                                <!-- Header -->
+                                <div class="client-card-header">
+                                    <div class="client-avatar" :style="getProtocolAvatarStyle(item.protocol)">
+                                        <a-icon :type="getProtocolIcon(item.protocol)"></a-icon>
+                                    </div>
+                                    <div class="client-meta">
+                                        <div class="client-title">[[ item.email ]]</div>
+                                        <div class="client-subtitle">
+                                            <a-tag :color="getProtocolColor(item.protocol)" style="font-size: 11px; font-weight: 700; margin: 0;">
+                                                [[ item.protocol.toUpperCase() ]]
+                                            </a-tag>
+                                            <span style="font-family: 'JetBrains Mono', monospace;">Port [[ item.port ]]</span>
+                                            <span v-if="item.inboundRemark" style="color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                ([[ item.inboundRemark ]])
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a-tag v-if="item.isOverQuota" color="red">QUOTA EXCEEDED</a-tag>
+                                        <a-tag v-else-if="item.isExpired" color="red">EXPIRED</a-tag>
+                                        <a-tag v-else-if="!item.enable" color="default">DISABLED</a-tag>
+                                        <a-tag v-else color="green">ACTIVE</a-tag>
+                                    </div>
+                                </div>
+
+                                <!-- UUID / Access Key -->
+                                <div class="client-key-row" :title="item.id">
+                                    <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
+                                        <a-icon type="key" style="color: var(--text-dim);"></a-icon>
+                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            [[ item.id ]]
+                                        </span>
+                                    </div>
+                                    <button class="copy-btn-icon" @click="copyText(item.id, 'Client key')" title="Copy Key">
+                                        <a-icon type="copy"></a-icon>
+                                    </button>
+                                </div>
+
+                                <!-- Usage / Bandwidth Quota Box -->
+                                <div class="client-usage-box">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                        <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px;">
+                                            DATA CONSUMPTION
+                                        </span>
+                                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #ffffff;">
+                                            [[ item.totalGB > 0 ? getClientUsagePercent(item) + '%' : 'UNLIMITED' ]]
+                                        </span>
+                                    </div>
+
+                                    <div style="height: 6px; background: rgba(255, 255, 255, 0.06); border-radius: 999px; overflow: hidden; margin-bottom: 8px;">
+                                        <div style="height: 100%; border-radius: 999px; transition: width 0.3s ease;"
+                                             :style="{ width: (item.totalGB > 0 ? Math.min(100, getClientUsagePercent(item)) : 0) + '%', background: getClientProgressColor(item) }"></div>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;">
+                                        <span>
+                                            <a-icon type="arrow-up" style="color: var(--accent-cyan);"></a-icon> [[ sizeFormat(item.up) ]]
+                                            <a-icon type="arrow-down" style="color: var(--accent-purple); margin-left: 6px;"></a-icon> [[ sizeFormat(item.down) ]]
+                                        </span>
+                                        <span v-if="item.totalGB > 0" style="color: #ffffff;">
+                                            Limit: [[ item.totalGB ]] GB
+                                        </span>
+                                        <span v-else>
+                                            No Limit
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Expiry Date -->
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">
+                                    <span>Expiration:</span>
+                                    <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff;">
+                                        [[ item.expiryTime > 0 ? formatTime(item.expiryTime) : 'Perpetual (Never)' ]]
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="client-actions">
+                                <a-button class="action-btn-primary" icon="qrcode" @click="showClientQr(item)">
+                                    Show QR Code
+                                </a-button>
+                                <a-button class="action-btn-secondary" icon="copy" @click="copyClientLink(item)" title="Copy Share Link">
+                                    Copy Link
+                                </a-button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div v-else style="background: var(--bg-card); border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 60px 20px; text-align: center; margin-top: 20px;">
+                        <a-icon type="team" style="font-size: 48px; color: var(--text-dim); margin-bottom: 16px;"></a-icon>
+                        <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">No Clients Found</div>
+                        <div style="font-size: 13px; color: var(--text-muted); max-width: 440px; margin: 0 auto 20px;">
+                            Configure an inbound proxy node to automatically generate and manage client credentials with individual bandwidth limits.
+                        </div>
+                        <a-button type="primary" icon="gateway" @click="location.href='{{ .base_path }}aether/inbounds'"
+                                  style="background: linear-gradient(135deg, #00f2fe, #4facfe); border: none; font-weight: 700; border-radius: 6px;">
+                            Go to Inbounds
+                        </a-button>
+                    </div>
+                </div>
+            </a-spin>
+        </a-layout-content>
+    </a-layout>
+</a-layout>
+
+{{template "qrcodeModal"}}
+{{template "js" .}}
+<script>
+    new Vue({
+        delimiters: ['[[', ']]'],
+        el: '#app',
+        data: {
+            loading: false,
+            searchKey: '',
+            filterProtocol: 'all',
+            inbounds: [],
+            clients: []
+        },
+        computed: {
+            activeClientsCount() {
+                return this.clients.filter(c => c.enable && !c.isExpired && !c.isOverQuota).length;
+            },
+            filteredClients() {
+                let list = this.clients;
+                if (this.filterProtocol !== 'all') {
+                    list = list.filter(c => c.protocol.toLowerCase() === this.filterProtocol.toLowerCase());
+                }
+                if (this.searchKey && this.searchKey.trim()) {
+                    const q = this.searchKey.trim().toLowerCase();
+                    list = list.filter(c =>
+                        (c.email && c.email.toLowerCase().includes(q)) ||
+                        (c.id && c.id.toLowerCase().includes(q)) ||
+                        (c.protocol && c.protocol.toLowerCase().includes(q)) ||
+                        (c.inboundRemark && c.inboundRemark.toLowerCase().includes(q)) ||
+                        String(c.port).includes(q)
+                    );
+                }
+                return list;
+            }
+        },
+        async mounted() {
+            await this.getInbounds();
+        },
+        methods: {
+            async getInbounds() {
+                this.loading = true;
+                try {
+                    const msg = await HttpUtil.post('/aether/inbound/list');
+                    if (msg.success) {
+                        this.inbounds = msg.obj.map(obj => new DBInbound(obj));
+                        this.extractClients();
+                    }
+                } catch (e) {
+                    this.$message.error('Failed to load inbounds');
+                } finally {
+                    this.loading = false;
+                }
+            },
+            extractClients() {
+                const list = [];
+                const now = Date.now();
+
+                for (const dbInbound of this.inbounds) {
+                    let settings = {};
+                    try {
+                        settings = JSON.parse(dbInbound.settings || '{}');
+                    } catch (e) {}
+
+                    let rawClients = [];
+                    if (settings.clients && Array.isArray(settings.clients)) {
+                        rawClients = settings.clients;
+                    } else if (settings.vlesses && Array.isArray(settings.vlesses)) {
+                        rawClients = settings.vlesses;
+                    } else if (settings.vmesses && Array.isArray(settings.vmesses)) {
+                        rawClients = settings.vmesses;
+                    } else if (settings.password) {
+                        rawClients = [{ password: settings.password, email: dbInbound.remark || 'Client' }];
+                    }
+
+                    if (rawClients.length === 0) {
+                        rawClients = [{ id: 'Standard Access', email: dbInbound.remark || 'Default' }];
+                    }
+
+                    for (let idx = 0; idx < rawClients.length; idx++) {
+                        const c = rawClients[idx];
+                        const totalGB = Number(c.totalGB) || 0;
+                        const exp = Number(c.expiryTime) || 0;
+                        const up = Number(c.up) || 0;
+                        const down = Number(c.down) || 0;
+                        const isExpired = exp > 0 && exp <= now;
+                        const limitBytes = totalGB * 1073741824;
+                        const isOverQuota = totalGB > 0 && (up + down) >= limitBytes;
+
+                        const item = {
+                            clientObj: c,
+                            dbInbound: dbInbound,
+                            email: c.email || (rawClients.length > 1 ? `Client #${idx + 1}` : dbInbound.remark || `Client-${idx + 1}`),
+                            id: c.id || c.password || 'Configured Key',
+                            totalGB: totalGB,
+                            expiryTime: exp,
+                            up: up,
+                            down: down,
+                            enable: c.enable !== false,
+                            isExpired: isExpired,
+                            isOverQuota: isOverQuota,
+                            protocol: dbInbound.protocol,
+                            port: dbInbound.port,
+                            inboundRemark: dbInbound.remark,
+                            link: dbInbound.genClientLink(c) || dbInbound.genLink()
+                        };
+                        list.push(item);
+                    }
+                }
+                this.clients = list;
+            },
+            getProtocolColor(protocol) {
+                switch (protocol.toLowerCase()) {
+                    case 'vless': return 'cyan';
+                    case 'vmess': return 'purple';
+                    case 'trojan': return 'green';
+                    case 'shadowsocks': return 'orange';
+                    default: return 'blue';
+                }
+            },
+            getProtocolIcon(protocol) {
+                switch (protocol.toLowerCase()) {
+                    case 'vless': return 'safety-certificate';
+                    case 'vmess': return 'cloud';
+                    case 'trojan': return 'shield';
+                    case 'shadowsocks': return 'lock';
+                    default: return 'api';
+                }
+            },
+            getProtocolAvatarStyle(protocol) {
+                switch (protocol.toLowerCase()) {
+                    case 'vless': return { background: 'rgba(0, 242, 254, 0.1)', color: '#00f2fe', border: '1px solid rgba(0, 242, 254, 0.25)' };
+                    case 'vmess': return { background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.25)' };
+                    case 'trojan': return { background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.25)' };
+                    case 'shadowsocks': return { background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.25)' };
+                    default: return { background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.25)' };
+                }
+            },
+            getClientUsagePercent(item) {
+                if (!item.totalGB || item.totalGB <= 0) return 0;
+                const totalBytes = item.totalGB * 1073741824;
+                const used = (item.up || 0) + (item.down || 0);
+                return Math.min(100, Math.round((used / totalBytes) * 100));
+            },
+            getClientProgressColor(item) {
+                const pct = this.getClientUsagePercent(item);
+                if (pct >= 95) return '#ef4444';
+                if (pct >= 80) return '#f59e0b';
+                return 'linear-gradient(90deg, #00f2fe, #4facfe)';
+            },
+            showClientQr(item) {
+                if (!item.link) {
+                    this.$message.warning('Link not available for this protocol');
+                    return;
+                }
+                qrModal.show(item.email + ' - QR Code', item.link);
+            },
+            copyClientLink(item) {
+                if (!item.link) {
+                    this.$message.warning('Link not available for this protocol');
+                    return;
+                }
+                ClipboardUtil.copy(item.link);
+                this.$message.success('Client link copied to clipboard!');
+            },
+            copyText(text, label='Text') {
+                ClipboardUtil.copy(text);
+                this.$message.success(label + ' copied to clipboard!');
+            },
+            sizeFormat(bytes) {
+                return sizeFormat(bytes || 0);
+            },
+            formatTime(time) {
+                return DateUtil.formatMillis(time);
+            }
+        }
+    });
+</script>
+</body>
+</html>

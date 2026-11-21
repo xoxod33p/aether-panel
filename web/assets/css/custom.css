@@ -642,9 +642,13 @@ textarea::placeholder,
     padding: 6px !important;
 }
 
+.ant-select-dropdown {
+    background: var(--bg-surface-elevated) !important;
+}
+
 .ant-dropdown-menu-item, .ant-select-dropdown-menu-item {
     border-radius: var(--radius-sm) !important;
-    color: var(--text-main) !important;
+    color: #e2e8f0 !important;
     font-weight: 500 !important;
     padding: 8px 14px !important;
     transition: all 0.15s ease !important;
@@ -653,6 +657,18 @@ textarea::placeholder,
 .ant-dropdown-menu-item:hover, .ant-select-dropdown-menu-item-active {
     background: var(--bg-surface-hover) !important;
     color: #ffffff !important;
+}
+
+.ant-select-dropdown-menu-item-selected {
+    background: #ffffff !important;
+    color: #0b0f17 !important;
+    font-weight: 700 !important;
+}
+
+.ant-select-dropdown-menu-item-selected:hover,
+.ant-select-dropdown-menu-item-selected.ant-select-dropdown-menu-item-active {
+    background: #f1f5f9 !important;
+    color: #0b0f17 !important;
 }
 
 /* Inbound Cards View Grid */

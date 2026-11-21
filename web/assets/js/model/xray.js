@@ -927,13 +927,14 @@ class Inbound extends XrayCommonClass {
             }
         }
 
+        let vmessClient = client || (this.settings.vmesses && this.settings.vmesses[0]);
         let obj = {
             v: '2',
             ps: remark,
             add: address,
             port: this.port,
-            id: this.settings.vmesses[0].id,
-            aid: this.settings.vmesses[0].alterId,
+            id: vmessClient ? vmessClient.id : '',
+            aid: vmessClient ? vmessClient.alterId : 0,
             net: network,
             type: type,
             host: host,
@@ -943,15 +944,17 @@ class Inbound extends XrayCommonClass {
         return 'vmess://' + base64(JSON.stringify(obj, null, 2));
     }
 
-    genVLESSLink(address = '', remark='') {
+    genVLESSLink(address = '', remark='', client = null) {
         const settings = this.settings;
-        const uuid = settings.vlesses[0].id;
+        const vlessClient = client || (settings.vlesses && settings.vlesses[0]);
+        const uuid = vlessClient ? vlessClient.id : '';
         const port = this.port;
         const type = this.stream.network;
         const params = new Map();
         params.set("type", this.stream.network);
         if (this.xtls) {
             params.set("security", "xtls");
+            params.set("flow", vlessClient ? vlessClient.flow : '');
         } else {
             params.set("security", this.stream.security);
         }
@@ -1029,9 +1032,11 @@ class Inbound extends XrayCommonClass {
             + '#' + encodeURIComponent(remark);
     }
 
-    genTrojanLink(address='', remark='') {
+    genTrojanLink(address='', remark='', client = null) {
         let settings = this.settings;
-        return `trojan://${settings.clients[0].password}@${address}:${this.port}#${encodeURIComponent(remark)}`;
+        const trojanClient = client || (settings.clients && settings.clients[0]);
+        const password = trojanClient ? trojanClient.password : '';
+        return `trojan://${password}@${address}:${this.port}#${encodeURIComponent(remark)}`;
     }
 
     genLink(address='', remark='') {
@@ -1041,6 +1046,16 @@ class Inbound extends XrayCommonClass {
             case Protocols.SHADOWSOCKS: return this.genSSLink(address, remark);
             case Protocols.TROJAN: return this.genTrojanLink(address, remark);
             default: return '';
+        }
+    }
+
+    genClientLink(client, address='', remark='') {
+        let clientRemark = (remark ? remark + ' - ' : '') + (client && client.email ? client.email : 'Client');
+        switch (this.protocol) {
+            case Protocols.VMESS: return this.genVmessLink(address, clientRemark, client);
+            case Protocols.VLESS: return this.genVLESSLink(address, clientRemark, client);
+            case Protocols.TROJAN: return this.genTrojanLink(address, clientRemark, client);
+            default: return this.genLink(address, clientRemark);
         }
     }
 

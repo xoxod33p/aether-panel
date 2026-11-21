@@ -1,8 +1,61 @@
 {{define "inboundModal"}}
-<a-modal id="inbound-modal" v-model="inModal.visible" :title="inModal.title" @ok="inModal.ok"
+<style>
+    .fullscreen-modal-wrap .ant-modal {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        top: 0 !important;
+        padding-bottom: 0 !important;
+        margin: 0 !important;
+        height: 100vh !important;
+    }
+    .fullscreen-modal-wrap .ant-modal-content {
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 0 !important;
+        border: none !important;
+    }
+    .fullscreen-modal-wrap .ant-modal-header {
+        flex-shrink: 0 !important;
+        padding: 16px 28px !important;
+    }
+    .fullscreen-modal-wrap .ant-modal-body {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        padding: 24px 36px !important;
+        max-height: calc(100vh - 130px) !important;
+    }
+    .fullscreen-modal-wrap .ant-modal-footer {
+        flex-shrink: 0 !important;
+        padding: 14px 28px !important;
+    }
+    .wide-modal-wrap .ant-modal {
+        width: 95vw !important;
+        max-width: 1280px !important;
+        top: 24px !important;
+        padding-bottom: 24px !important;
+    }
+    .wide-modal-wrap .ant-modal-body {
+        max-height: calc(100vh - 180px) !important;
+        overflow-y: auto !important;
+        padding: 24px 28px !important;
+    }
+</style>
+<a-modal id="inbound-modal" v-model="inModal.visible" @ok="inModal.ok"
          :confirm-loading="inModal.confirmLoading" :closable="true" :mask-closable="false"
-         width="760px" :dialog-style="{ top: '40px', maxWidth: '95vw' }"
+         :wrap-class-name="inModal.isFullScreen ? 'fullscreen-modal-wrap' : 'wide-modal-wrap'"
+         :width="inModal.isFullScreen ? '100vw' : '1240px'"
+         :dialog-style="inModal.isFullScreen ? { top: '0', margin: '0', paddingBottom: '0', maxWidth: '100vw', width: '100vw', height: '100vh' } : { top: '24px', maxWidth: '95vw', paddingBottom: '24px' }"
          :ok-text="inModal.okText" cancel-text='{{ i18n "close" }}'>
+    <template slot="title">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-right: 36px;">
+            <span style="font-size: 16px; font-weight: 700; color: #ffffff;">[[ inModal.title ]]</span>
+            <a-button type="link" size="small" @click="inModal.isFullScreen = !inModal.isFullScreen" style="color: var(--accent-cyan); display: inline-flex; align-items: center; gap: 5px; font-weight: 600; padding: 0 8px;">
+                <a-icon :type="inModal.isFullScreen ? 'fullscreen-exit' : 'fullscreen'"></a-icon>
+                <span>[[ inModal.isFullScreen ? 'Windowed' : 'Full Screen' ]]</span>
+            </a-button>
+        </div>
+    </template>
     {{template "form/inbound"}}
 </a-modal>
 <script>
@@ -10,6 +63,7 @@
     const inModal = {
         title: '',
         visible: false,
+        isFullScreen: true,
         confirmLoading: false,
         okText: 'Confirm',
         confirm: null,

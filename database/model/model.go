@@ -35,7 +35,7 @@ type Inbound struct {
 	Enable     bool   `json:"enable" form:"enable"`
 	ExpiryTime int64  `json:"expiryTime" form:"expiryTime"`
 
-	// config part
+	
 	Listen         string   `json:"listen" form:"listen"`
 	Port           int      `json:"port" form:"port" gorm:"unique"`
 	Protocol       Protocol `json:"protocol" form:"protocol"`
@@ -73,14 +73,14 @@ func (i *Inbound) GenActiveSettings() string {
 			continue
 		}
 
-		// Check if client is disabled
+		
 		if enable, exists := clientMap["enable"]; exists {
 			if enableBool, ok := enable.(bool); ok && !enableBool {
 				continue
 			}
 		}
 
-		// Check client expiry
+		
 		if exp, exists := clientMap["expiryTime"]; exists {
 			var expTime int64
 			switch v := exp.(type) {
@@ -94,7 +94,7 @@ func (i *Inbound) GenActiveSettings() string {
 			}
 		}
 
-		// Check client totalGB bandwidth limit
+		
 		if totalGBVal, exists := clientMap["totalGB"]; exists {
 			var totalGB float64
 			switch v := totalGBVal.(type) {
@@ -120,7 +120,7 @@ func (i *Inbound) GenActiveSettings() string {
 			}
 		}
 
-		// Ensure client has email tag so Xray generates user stats
+		
 		email, exists := clientMap["email"]
 		if !exists || email == nil || email == "" {
 			clientMap["email"] = fmt.Sprintf("%v-u%v", i.Tag, idx+1)

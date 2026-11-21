@@ -20,7 +20,7 @@ func NewAetherController(g *gin.RouterGroup) *AetherController {
 }
 
 func (a *AetherController) initRouter(g *gin.RouterGroup) {
-	// Primary /aether group
+	
 	ag := g.Group("/aether")
 	ag.Use(a.checkLogin)
 
@@ -32,7 +32,7 @@ func (a *AetherController) initRouter(g *gin.RouterGroup) {
 	a.inboundController = NewInboundController(ag)
 	a.settingController = NewSettingController(ag)
 
-	// Legacy /xui redirect / fallback compatibility
+	
 	xg := g.Group("/xui")
 	xg.Use(a.checkLogin)
 	xg.GET("/", func(c *gin.Context) { c.Redirect(http.StatusMovedPermanently, "../aether/") })

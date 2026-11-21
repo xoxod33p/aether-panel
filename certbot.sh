@@ -113,13 +113,11 @@ apply_cert_to_panel() {
 
     yellow "Configuring certificate into Aether VPN panel..."
 
-    # Ensure permissions allow root service reading
     chmod 755 /etc/letsencrypt/live
     chmod 755 /etc/letsencrypt/archive
     chmod 644 "$cert_file"
     chmod 600 "$key_file"
 
-    # Setup automatic renewal deploy hook
     mkdir -p /etc/letsencrypt/renewal-hooks/deploy
     cat << 'EOF' > /etc/letsencrypt/renewal-hooks/deploy/aether-vpn.sh
 #!/bin/bash
@@ -127,7 +125,6 @@ systemctl restart aether-vpn 2>/dev/null
 EOF
     chmod +x /etc/letsencrypt/renewal-hooks/deploy/aether-vpn.sh
 
-    # Setup timer / cron for auto-renewal
     if command -v systemctl &>/dev/null; then
         systemctl enable certbot.timer 2>/dev/null
         systemctl start certbot.timer 2>/dev/null
@@ -136,12 +133,10 @@ EOF
         echo "0 3 * * * root certbot renew --quiet --deploy-hook 'systemctl restart aether-vpn' >/dev/null 2>&1" >> /etc/crontab
     fi
 
-    # Update Panel Setting in database using CLI
     if [[ -x /usr/local/aether-vpn/aether-vpn ]]; then
         /usr/local/aether-vpn/aether-vpn setting -cert "$cert_file" -key "$key_file"
     fi
 
-    # Restart Aether VPN to apply HTTPS
     if command -v systemctl &>/dev/null; then
         systemctl restart aether-vpn 2>/dev/null
     fi
@@ -327,7 +322,6 @@ set_existing_cert() {
     back2menu
 }
 
-# Support direct command-line arguments: e.g. "certbot.sh install <domain>" or "certbot.sh apply <domain>"
 if [[ "$1" == "install" && -n "$2" ]]; then
     direct_issue "$2"
     exit $?

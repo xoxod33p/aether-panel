@@ -133,7 +133,7 @@ func (s *Server) getHtmlTemplate(funcMap template.FuncMap) (*template.Template, 
 		if d.IsDir() {
 			newT, err := t.ParseFS(htmlFS, path+"/*.html")
 			if err != nil {
-				// ignore
+				
 				return nil
 			}
 			t = newT
@@ -185,7 +185,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 	}
 
 	if config.IsDebug() {
-		// for develop
+		
 		files, err := s.getHtmlFiles()
 		if err != nil {
 			return nil, err
@@ -193,7 +193,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		engine.LoadHTMLFiles(files...)
 		engine.StaticFS(basePath+"assets", http.FS(os.DirFS("web/assets")))
 	} else {
-		// for prod
+		
 		t, err := s.getHtmlTemplate(engine.FuncMap)
 		if err != nil {
 			return nil, err
@@ -236,11 +236,11 @@ func (s *Server) initI18n(engine *gin.Engine) error {
 		names := make([]string, 0)
 		keyLen := len(key)
 		for i := 0; i < keyLen-1; i++ {
-			if key[i:i+2] == "{{" { // 判断开头 "{{"
+			if key[i:i+2] == "{{" { 
 				j := i + 2
 				isFind := false
 				for ; j < keyLen-1; j++ {
-					if key[j:j+2] == "}}" { // 结尾 "}}"
+					if key[j:j+2] == "}}" { 
 						isFind = true
 						break
 					}
@@ -289,16 +289,16 @@ func (s *Server) startTask() {
 	if err != nil {
 		logger.Warning("start xray failed:", err)
 	}
-	// 每 30 秒检查一次 xray 是否在运行
+	
 	s.cron.AddJob("@every 30s", job.NewCheckXrayRunningJob())
 
 	go func() {
 		time.Sleep(time.Second * 5)
-		// 每 10 秒统计一次流量，首次启动延迟 5 秒，与重启 xray 的时间错开
+		
 		s.cron.AddJob("@every 10s", job.NewXrayTrafficJob())
 	}()
 
-	// 每 30 秒检查一次 inbound 流量超出和到期的情况
+	
 	s.cron.AddJob("@every 30s", job.NewCheckInboundJob())
 }
 

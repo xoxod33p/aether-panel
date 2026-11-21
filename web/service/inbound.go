@@ -245,7 +245,7 @@ func (s *InboundService) DisableInvalidInbounds() (int64, error) {
 		return count, err
 	}
 
-	// Check per-client limits across inbounds
+	
 	var inbounds []*model.Inbound
 	err = db.Model(model.Inbound{}).Where("enable = ?", true).Find(&inbounds).Error
 	if err != nil {
@@ -279,7 +279,7 @@ func (s *InboundService) DisableInvalidInbounds() (int64, error) {
 					continue
 				}
 			}
-			// Check expiry
+			
 			if exp, exists := clientMap["expiryTime"]; exists {
 				var expTime int64
 				switch v := exp.(type) {
@@ -293,7 +293,7 @@ func (s *InboundService) DisableInvalidInbounds() (int64, error) {
 					clientChanged = true
 				}
 			}
-			// Check totalGB
+			
 			if totalGBVal, exists := clientMap["totalGB"]; exists {
 				var totalGB float64
 				switch v := totalGBVal.(type) {

@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm/logger"
 	"os"
 	"path"
+	"strings"
 	"aether-vpn/config"
 	"aether-vpn/database/model"
 )
@@ -33,7 +34,28 @@ func initUser() error {
 }
 
 func initInbound() error {
-	return db.AutoMigrate(&model.Inbound{})
+	err := db.AutoMigrate(&model.Inbound{})
+	if err != nil {
+		return err
+	}
+	return migrateLegacyFlows()
+}
+
+func migrateLegacyFlows() error {
+	var inbounds []model.Inbound
+	err := db.Find(&inbounds).Error
+	if err != nil {
+		return err
+	}
+	for _, in := range inbounds {
+		if strings.Contains(in.Settings, "xtls-rprx-direct") ||
+			strings.Contains(in.Settings, "xtls-rprx-origin") ||
+			strings.Contains(in.Settings, "xtls-rprx-splice") {
+			newSettings := model.SanitizeLegacyFlows(in.Settings)
+			db.Model(&in).Update("settings", newSettings)
+		}
+	}
+	return nil
 }
 
 func initSetting() error {

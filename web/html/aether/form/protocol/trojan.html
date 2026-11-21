@@ -60,11 +60,11 @@
                                    v-model="client._expiryTime" style="width: 100%;" placeholder="Never Expires"></a-date-picker>
                 </a-form-item>
             </a-col>
-            <a-col :xs="24" :sm="8" v-if="inbound.xtls">
+            <a-col :xs="24" :sm="8" v-if="inbound.xtls || inbound.tls">
                 <a-form-item label="Flow">
                     <a-select v-model="client.flow" style="width: 100%">
                         <a-select-option value="">None</a-select-option>
-                        <a-select-option v-for="key in FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
+                        <a-select-option v-for="(val, key) in FLOW_CONTROL" :key="key" :value="val">[[ val ]]</a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>

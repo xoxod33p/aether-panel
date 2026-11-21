@@ -41,8 +41,8 @@ const RULE_DOMAIN = {
 };
 
 const FLOW_CONTROL = {
-    ORIGIN: "xtls-rprx-origin",
-    DIRECT: "xtls-rprx-direct",
+    VISION: "xtls-rprx-vision",
+    VISION_UDP443: "xtls-rprx-vision-udp443",
 };
 
 Object.freeze(Protocols);
@@ -1264,10 +1264,10 @@ Inbound.VLESSSettings = class extends Inbound.Settings {
 };
 Inbound.VLESSSettings.VLESS = class extends XrayCommonClass {
 
-    constructor(id=RandomUtil.randomUUID(), flow=FLOW_CONTROL.DIRECT, email='', totalGB=0, expiryTime=0, enable=true) {
+    constructor(id=RandomUtil.randomUUID(), flow='', email='', totalGB=0, expiryTime=0, enable=true) {
         super();
         this.id = id;
-        this.flow = flow;
+        this.flow = (flow === 'xtls-rprx-direct' || flow === 'xtls-rprx-origin' || flow === 'xtls-rprx-splice') ? '' : (flow || '');
         this.email = email || 'client-' + RandomUtil.randomSeq(4);
         this.totalGB = totalGB || 0;
         this.expiryTime = expiryTime || 0;
@@ -1285,9 +1285,13 @@ Inbound.VLESSSettings.VLESS = class extends XrayCommonClass {
     }
 
     static fromJson(json={}) {
+        let flow = json.flow || '';
+        if (flow === 'xtls-rprx-direct' || flow === 'xtls-rprx-origin' || flow === 'xtls-rprx-splice') {
+            flow = '';
+        }
         const v = new Inbound.VLESSSettings.VLESS(
             json.id,
-            json.flow,
+            flow,
             json.email,
             json.totalGB,
             json.expiryTime,
@@ -1299,9 +1303,13 @@ Inbound.VLESSSettings.VLESS = class extends XrayCommonClass {
     }
 
     toJson() {
+        let flow = this.flow || '';
+        if (flow === 'xtls-rprx-direct' || flow === 'xtls-rprx-origin' || flow === 'xtls-rprx-splice') {
+            flow = '';
+        }
         return {
             id: this.id,
-            flow: this.flow,
+            flow: flow,
             email: this.email,
             totalGB: this.totalGB,
             expiryTime: this.expiryTime,
@@ -1397,10 +1405,10 @@ Inbound.TrojanSettings = class extends Inbound.Settings {
     }
 };
 Inbound.TrojanSettings.Client = class extends XrayCommonClass {
-    constructor(password=RandomUtil.randomSeq(10), flow=FLOW_CONTROL.DIRECT, email='', totalGB=0, expiryTime=0, enable=true) {
+    constructor(password=RandomUtil.randomSeq(10), flow='', email='', totalGB=0, expiryTime=0, enable=true) {
         super();
         this.password = password;
-        this.flow = flow;
+        this.flow = (flow === 'xtls-rprx-direct' || flow === 'xtls-rprx-origin' || flow === 'xtls-rprx-splice') ? '' : (flow || '');
         this.email = email || 'client-' + RandomUtil.randomSeq(4);
         this.totalGB = totalGB || 0;
         this.expiryTime = expiryTime || 0;
@@ -1418,9 +1426,13 @@ Inbound.TrojanSettings.Client = class extends XrayCommonClass {
     }
 
     toJson() {
+        let flow = this.flow || '';
+        if (flow === 'xtls-rprx-direct' || flow === 'xtls-rprx-origin' || flow === 'xtls-rprx-splice') {
+            flow = '';
+        }
         return {
             password: this.password,
-            flow: this.flow,
+            flow: flow,
             email: this.email,
             totalGB: this.totalGB,
             expiryTime: this.expiryTime,
@@ -1431,9 +1443,13 @@ Inbound.TrojanSettings.Client = class extends XrayCommonClass {
     }
 
     static fromJson(json={}) {
+        let flow = json.flow || '';
+        if (flow === 'xtls-rprx-direct' || flow === 'xtls-rprx-origin' || flow === 'xtls-rprx-splice') {
+            flow = '';
+        }
         const c = new Inbound.TrojanSettings.Client(
             json.password,
-            json.flow,
+            flow,
             json.email,
             json.totalGB,
             json.expiryTime,

@@ -56,6 +56,7 @@ func (s *InboundService) AddInbound(inbound *model.Inbound) error {
 	if exist {
 		return common.NewError("Port already exists:", inbound.Port)
 	}
+	inbound.Settings = model.SanitizeLegacyFlows(inbound.Settings)
 	db := database.GetDB()
 	return db.Save(inbound).Error
 }
@@ -69,6 +70,7 @@ func (s *InboundService) AddInbounds(inbounds []*model.Inbound) error {
 		if exist {
 			return common.NewError("Port already exists:", inbound.Port)
 		}
+		inbound.Settings = model.SanitizeLegacyFlows(inbound.Settings)
 	}
 
 	db := database.GetDB()
@@ -129,7 +131,7 @@ func (s *InboundService) UpdateInbound(inbound *model.Inbound) error {
 	oldInbound.Listen = inbound.Listen
 	oldInbound.Port = inbound.Port
 	oldInbound.Protocol = inbound.Protocol
-	oldInbound.Settings = inbound.Settings
+	oldInbound.Settings = model.SanitizeLegacyFlows(inbound.Settings)
 	oldInbound.StreamSettings = inbound.StreamSettings
 	oldInbound.Sniffing = inbound.Sniffing
 	oldInbound.Tag = fmt.Sprintf("inbound-%v", inbound.Port)

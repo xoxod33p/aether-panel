@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 	"aether-vpn/util/json_util"
 	"aether-vpn/xray"
@@ -45,10 +46,22 @@ type Inbound struct {
 	Sniffing       string   `json:"sniffing" form:"sniffing"`
 }
 
+func SanitizeLegacyFlows(settings string) string {
+	if strings.Contains(settings, "xtls-rprx-direct") ||
+		strings.Contains(settings, "xtls-rprx-origin") ||
+		strings.Contains(settings, "xtls-rprx-splice") {
+		settings = strings.ReplaceAll(settings, "xtls-rprx-direct", "")
+		settings = strings.ReplaceAll(settings, "xtls-rprx-origin", "")
+		settings = strings.ReplaceAll(settings, "xtls-rprx-splice", "")
+	}
+	return settings
+}
+
 func (i *Inbound) GenActiveSettings() string {
 	if i.Settings == "" {
 		return "{}"
 	}
+	i.Settings = SanitizeLegacyFlows(i.Settings)
 	var settingsMap map[string]interface{}
 	err := json.Unmarshal([]byte(i.Settings), &settingsMap)
 	if err != nil {
@@ -121,6 +134,14 @@ func (i *Inbound) GenActiveSettings() string {
 		}
 
 		
+		if flow, exists := clientMap["flow"]; exists {
+			if flowStr, ok := flow.(string); ok {
+				if flowStr == "xtls-rprx-direct" || flowStr == "xtls-rprx-origin" || flowStr == "xtls-rprx-splice" {
+					clientMap["flow"] = ""
+				}
+			}
+		}
+
 		email, exists := clientMap["email"]
 		if !exists || email == nil || email == "" {
 			clientMap["email"] = fmt.Sprintf("%v-u%v", i.Tag, idx+1)

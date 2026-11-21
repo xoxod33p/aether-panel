@@ -487,6 +487,7 @@
                     title: 'Reset Traffic Statistics',
                     content: 'Reset accumulated traffic counters for this inbound? Limits will stay intact.',
                     okText: 'Reset',
+                    okType: 'danger',
                     cancelText: 'Cancel',
                     onOk: () => {
                         const inbound = dbInbound.toInbound();
@@ -501,6 +502,7 @@
                     title: 'Delete Inbound Rule',
                     content: 'Permanently remove inbound #' + dbInbound.id + ' (' + (dbInbound.remark || 'Unnamed') + ')?',
                     okText: 'Delete',
+                    okType: 'danger',
                     cancelText: 'Cancel',
                     onOk: () => this.submit('/aether/inbound/del/' + dbInbound.id),
                 });

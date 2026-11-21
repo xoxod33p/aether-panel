@@ -240,6 +240,9 @@
                                         <a-tag v-if="getInboundStreamTls(index)">
                                             [[ getInboundStreamTls(index).toUpperCase() ]]
                                         </a-tag>
+                                        <a-tag v-if="getClientCount(dbInbound) > 1" style="background: rgba(0, 242, 254, 0.1) !important; color: #00f2fe !important; border-color: rgba(0, 242, 254, 0.3) !important;">
+                                            <a-icon type="team" style="margin-right: 4px;"></a-icon>[[ getClientCount(dbInbound) ]] Clients
+                                        </a-tag>
                                         <a-tag v-if="dbInbound.isExpiry" style="background: rgba(239, 68, 68, 0.15) !important; color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3) !important;">
                                             EXPIRED
                                         </a-tag>
@@ -505,17 +508,25 @@
                 }
                 return '';
             },
+            getClientCount(dbInbound) {
+                try {
+                    const s = JSON.parse(dbInbound.settings || '{}');
+                    const c = s.clients || s.vlesses || s.vmesses;
+                    return c ? c.length : 1;
+                } catch (e) {
+                    return 1;
+                }
+            },
             getClientKeyPreview(dbInbound) {
                 try {
                     const settings = JSON.parse(dbInbound.settings || '{}');
-                    if (settings.clients && settings.clients.length > 0) {
-                        return settings.clients[0].id || settings.clients[0].password || 'Client Configured';
-                    }
-                    if (settings.vlesses && settings.vlesses.length > 0) {
-                        return settings.vlesses[0].id || 'VLESS Client';
-                    }
-                    if (settings.vmesses && settings.vmesses.length > 0) {
-                        return settings.vmesses[0].id || 'VMess Client';
+                    const clients = settings.clients || settings.vlesses || settings.vmesses;
+                    if (clients && clients.length > 0) {
+                        if (clients.length > 1) {
+                            return `${clients.length} Clients Configured (${clients[0].email || 'c1'}...)`;
+                        }
+                        const c = clients[0];
+                        return (c.email ? `[${c.email}] ` : '') + (c.id || c.password || 'Client Configured');
                     }
                     if (settings.password) {
                         return 'Pass: ' + settings.password;

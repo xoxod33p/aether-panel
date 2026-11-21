@@ -1,15 +1,76 @@
 {{define "form/trojan"}}
-<a-form layout="inline">
-    <a-form-item label="Password">
-        <a-input v-model.trim="inbound.settings.clients[0].password"></a-input>
-    </a-form-item>
-    <a-form-item v-if="inbound.xtls" label="Flow">
-        <a-select v-model="inbound.settings.clients[0].flow" style="width: 150px">
-            <a-select-option value="">None</a-select-option>
-            <a-select-option v-for="key in FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
-        </a-select>
-    </a-form-item>
-</a-form>
+<div style="margin: 10px 0 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #ffffff; font-size: 13px;">
+            <a-icon type="team" style="color: var(--accent-emerald); margin-right: 6px;"></a-icon>
+            Client Accounts & Usage Limits ([[ inbound.settings.clients.length ]])
+        </span>
+        <a-button type="primary" size="small" icon="plus" @click="inbound.settings.addClient()"
+                  style="border-radius: 6px; background: linear-gradient(135deg, #10b981, #059669); border: none; font-weight: 600;">
+            Add Client
+        </a-button>
+    </div>
+
+    <div v-for="(client, index) in inbound.settings.clients" :key="index"
+         style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <a-tag color="green" style="font-weight: 700;">Client #[[ index + 1 ]]</a-tag>
+                <span v-if="client.email" style="font-weight: 600; color: #ffffff; font-size: 13px;">[[ client.email ]]</span>
+                <span v-if="client.totalGB > 0" style="font-size: 11px; color: var(--accent-emerald); background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 4px;">
+                    Limit: [[ client.totalGB ]] GB
+                </span>
+                <span v-else style="font-size: 11px; color: var(--text-dim); background: rgba(255, 255, 255, 0.05); padding: 2px 6px; border-radius: 4px;">
+                    Unlimited
+                </span>
+            </div>
+            <div>
+                <a-popconfirm v-if="inbound.settings.clients.length > 1"
+                              title="Delete this client?"
+                              @confirm="inbound.settings.delClient(client)">
+                    <a-button type="danger" size="small" icon="delete" ghost style="border-radius: 4px;"></a-button>
+                </a-popconfirm>
+            </div>
+        </div>
+
+        <a-row :gutter="12">
+            <a-col :xs="24" :sm="8">
+                <a-form-item label="Client Remark / Email">
+                    <a-input v-model.trim="client.email" placeholder="e.g. user-01"></a-input>
+                </a-form-item>
+            </a-col>
+            <a-col :xs="24" :sm="16">
+                <a-form-item label="Password">
+                    <a-input v-model.trim="client.password">
+                        <a-icon slot="addonAfter" type="sync" style="cursor: pointer;" @click="client.password = RandomUtil.randomSeq(10)" title="Generate new password"></a-icon>
+                    </a-input>
+                </a-form-item>
+            </a-col>
+        </a-row>
+
+        <a-row :gutter="12">
+            <a-col :xs="24" :sm="8">
+                <a-form-item label="Usage Limit (GB)">
+                    <a-input-number v-model="client.totalGB" :min="0" style="width: 100%;" placeholder="0 = Unlimited"></a-input-number>
+                </a-form-item>
+            </a-col>
+            <a-col :xs="24" :sm="8">
+                <a-form-item label="Client Expiry Date">
+                    <a-date-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                                   v-model="client._expiryTime" style="width: 100%;" placeholder="Never Expires"></a-date-picker>
+                </a-form-item>
+            </a-col>
+            <a-col :xs="24" :sm="8" v-if="inbound.xtls">
+                <a-form-item label="Flow">
+                    <a-select v-model="client.flow" style="width: 100%">
+                        <a-select-option value="">None</a-select-option>
+                        <a-select-option v-for="key in FLOW_CONTROL" :value="key">[[ key ]]</a-select-option>
+                    </a-select>
+                </a-form-item>
+            </a-col>
+        </a-row>
+    </div>
+</div>
 
 <a-form layout="inline">
     <a-form-item label="Fallbacks">

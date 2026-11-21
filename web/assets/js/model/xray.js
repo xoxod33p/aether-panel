@@ -1125,16 +1125,13 @@ Inbound.VmessSettings = class extends Inbound.Settings {
         return this.vmesses.findIndex(vmess => vmess.id === id);
     }
 
-    addVmess(vmess) {
-        if (this.indexOfVmessById(vmess.id) >= 0) {
-            return false;
-        }
+    addVmess(vmess=new Inbound.VmessSettings.Vmess()) {
         this.vmesses.push(vmess);
     }
 
     delVmess(vmess) {
-        const i = this.indexOfVmessById(vmess.id);
-        if (i >= 0) {
+        const i = this.vmesses.indexOf(vmess);
+        if (i >= 0 && this.vmesses.length > 1) {
             this.vmesses.splice(i, 1);
         }
     }
@@ -1155,17 +1152,51 @@ Inbound.VmessSettings = class extends Inbound.Settings {
     }
 };
 Inbound.VmessSettings.Vmess = class extends XrayCommonClass {
-    constructor(id=RandomUtil.randomUUID(), alterId=0) {
+    constructor(id=RandomUtil.randomUUID(), alterId=0, email='', totalGB=0, expiryTime=0, enable=true) {
         super();
         this.id = id;
         this.alterId = alterId;
+        this.email = email || 'client-' + RandomUtil.randomSeq(4);
+        this.totalGB = totalGB || 0;
+        this.expiryTime = expiryTime || 0;
+        this.enable = enable !== false;
+        this.up = 0;
+        this.down = 0;
+    }
+
+    get _expiryTime() {
+        return this.expiryTime > 0 ? moment(this.expiryTime) : null;
+    }
+
+    set _expiryTime(val) {
+        this.expiryTime = val ? val.valueOf() : 0;
     }
 
     static fromJson(json={}) {
-        return new Inbound.VmessSettings.Vmess(
+        const v = new Inbound.VmessSettings.Vmess(
             json.id,
             json.alterId,
+            json.email,
+            json.totalGB,
+            json.expiryTime,
+            json.enable,
         );
+        v.up = json.up || 0;
+        v.down = json.down || 0;
+        return v;
+    }
+
+    toJson() {
+        return {
+            id: this.id,
+            alterId: this.alterId,
+            email: this.email,
+            totalGB: this.totalGB,
+            expiryTime: this.expiryTime,
+            enable: this.enable,
+            up: this.up,
+            down: this.down,
+        };
     }
 };
 
@@ -1178,6 +1209,17 @@ Inbound.VLESSSettings = class extends Inbound.Settings {
         this.vlesses = vlesses;
         this.decryption = decryption;
         this.fallbacks = fallbacks;
+    }
+
+    addVless(vless=new Inbound.VLESSSettings.VLESS()) {
+        this.vlesses.push(vless);
+    }
+
+    delVless(vless) {
+        const i = this.vlesses.indexOf(vless);
+        if (i >= 0 && this.vlesses.length > 1) {
+            this.vlesses.splice(i, 1);
+        }
     }
 
     addFallback() {
@@ -1207,17 +1249,51 @@ Inbound.VLESSSettings = class extends Inbound.Settings {
 };
 Inbound.VLESSSettings.VLESS = class extends XrayCommonClass {
 
-    constructor(id=RandomUtil.randomUUID(), flow=FLOW_CONTROL.DIRECT) {
+    constructor(id=RandomUtil.randomUUID(), flow=FLOW_CONTROL.DIRECT, email='', totalGB=0, expiryTime=0, enable=true) {
         super();
         this.id = id;
         this.flow = flow;
+        this.email = email || 'client-' + RandomUtil.randomSeq(4);
+        this.totalGB = totalGB || 0;
+        this.expiryTime = expiryTime || 0;
+        this.enable = enable !== false;
+        this.up = 0;
+        this.down = 0;
+    }
+
+    get _expiryTime() {
+        return this.expiryTime > 0 ? moment(this.expiryTime) : null;
+    }
+
+    set _expiryTime(val) {
+        this.expiryTime = val ? val.valueOf() : 0;
     }
 
     static fromJson(json={}) {
-        return new Inbound.VLESSSettings.VLESS(
+        const v = new Inbound.VLESSSettings.VLESS(
             json.id,
             json.flow,
+            json.email,
+            json.totalGB,
+            json.expiryTime,
+            json.enable,
         );
+        v.up = json.up || 0;
+        v.down = json.down || 0;
+        return v;
+    }
+
+    toJson() {
+        return {
+            id: this.id,
+            flow: this.flow,
+            email: this.email,
+            totalGB: this.totalGB,
+            expiryTime: this.expiryTime,
+            enable: this.enable,
+            up: this.up,
+            down: this.down,
+        };
     }
 };
 Inbound.VLESSSettings.Fallback = class extends XrayCommonClass {
@@ -1268,6 +1344,17 @@ Inbound.TrojanSettings = class extends Inbound.Settings {
         this.fallbacks = fallbacks;
     }
 
+    addClient(client=new Inbound.TrojanSettings.Client()) {
+        this.clients.push(client);
+    }
+
+    delClient(client) {
+        const i = this.clients.indexOf(client);
+        if (i >= 0 && this.clients.length > 1) {
+            this.clients.splice(i, 1);
+        }
+    }
+
     addTrojanFallback() {
         this.fallbacks.push(new Inbound.TrojanSettings.Fallback());
     }
@@ -1295,26 +1382,52 @@ Inbound.TrojanSettings = class extends Inbound.Settings {
     }
 };
 Inbound.TrojanSettings.Client = class extends XrayCommonClass {
-    constructor(password=RandomUtil.randomSeq(10), flow=FLOW_CONTROL.DIRECT) {
+    constructor(password=RandomUtil.randomSeq(10), flow=FLOW_CONTROL.DIRECT, email='', totalGB=0, expiryTime=0, enable=true) {
         super();
         this.password = password;
         this.flow = flow;
+        this.email = email || 'client-' + RandomUtil.randomSeq(4);
+        this.totalGB = totalGB || 0;
+        this.expiryTime = expiryTime || 0;
+        this.enable = enable !== false;
+        this.up = 0;
+        this.down = 0;
+    }
+
+    get _expiryTime() {
+        return this.expiryTime > 0 ? moment(this.expiryTime) : null;
+    }
+
+    set _expiryTime(val) {
+        this.expiryTime = val ? val.valueOf() : 0;
     }
 
     toJson() {
         return {
             password: this.password,
             flow: this.flow,
+            email: this.email,
+            totalGB: this.totalGB,
+            expiryTime: this.expiryTime,
+            enable: this.enable,
+            up: this.up,
+            down: this.down,
         };
     }
 
     static fromJson(json={}) {
-        return new Inbound.TrojanSettings.Client(
+        const c = new Inbound.TrojanSettings.Client(
             json.password,
             json.flow,
+            json.email,
+            json.totalGB,
+            json.expiryTime,
+            json.enable,
         );
+        c.up = json.up || 0;
+        c.down = json.down || 0;
+        return c;
     }
-
 };
 
 Inbound.TrojanSettings.Fallback = class extends XrayCommonClass {

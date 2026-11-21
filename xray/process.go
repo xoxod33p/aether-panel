@@ -21,7 +21,7 @@ import (
 	"aether-vpn/util/common"
 )
 
-var trafficRegex = regexp.MustCompile("(inbound|outbound)>>>([^>]+)>>>traffic>>>(downlink|uplink)")
+var trafficRegex = regexp.MustCompile("(inbound|outbound|user)>>>([^>]+)>>>traffic>>>(downlink|uplink)")
 
 func getBinDir() string {
 	if fi, err := os.Stat("bin"); err == nil && fi.IsDir() {
@@ -267,7 +267,11 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 	traffics := make([]*Traffic, 0)
 	for _, stat := range resp.GetStat() {
 		matchs := trafficRegex.FindStringSubmatch(stat.Name)
+		if len(matchs) < 4 {
+			continue
+		}
 		isInbound := matchs[1] == "inbound"
+		isUser := matchs[1] == "user"
 		tag := matchs[2]
 		isDown := matchs[3] == "downlink"
 		if tag == "api" {
@@ -277,6 +281,7 @@ func (p *process) GetTraffic(reset bool) ([]*Traffic, error) {
 		if !ok {
 			traffic = &Traffic{
 				IsInbound: isInbound,
+				IsUser:    isUser,
 				Tag:       tag,
 			}
 			tagTrafficMap[tag] = traffic

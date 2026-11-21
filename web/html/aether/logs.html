@@ -206,25 +206,6 @@
     <a-layout id="content-layout">
         <a-layout-content>
             <div class="logs-container">
-                <div class="logs-status-bar">
-                    <div class="logs-status-left">
-                        <div class="live-stream-badge" :class="isStreaming ? 'active' : 'paused'">
-                            <span class="status-dot-pulse" :style="{ background: isStreaming ? '#10b981' : '#f59e0b', boxShadow: isStreaming ? '0 0 6px #10b981' : 'none' }"></span>
-                            <span>[[ isStreaming ? 'STREAMING ACTIVE' : 'STREAM PAUSED' ]]</span>
-                        </div>
-                        <a-tag style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); font-weight: 600;">
-                            <a-icon type="branches" style="margin-right: 4px;"></a-icon>Xray Core: [[ xrayVersion ]]
-                        </a-tag>
-                        <a-tag :style="{ background: xrayRunning ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: xrayRunning ? '#10b981' : '#ef4444', borderColor: xrayRunning ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)', fontWeight: '600' }">
-                            Status: [[ xrayRunning ? 'RUNNING' : 'STOPPED' ]]
-                        </a-tag>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 12px; color: #64748b; font-family: 'JetBrains Mono', monospace;">Server Time: [[ serverTime ]]</span>
-                    </div>
-                </div>
-
                 <div class="logs-controls-bar">
                     <div class="filter-chips-group">
                         <button class="filter-chip-btn" :class="{ active: sourceFilter === 'all' }" @click="sourceFilter = 'all'">

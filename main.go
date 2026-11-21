@@ -97,22 +97,26 @@ func showSetting(show bool) {
 		settingService := service.SettingService{}
 		port, err := settingService.GetPort()
 		if err != nil {
-			fmt.Println("get current port fialed,error info:", err)
+			fmt.Println("get current port failed, error info:", err)
 		}
+		certFile, _ := settingService.GetCertFile()
+		keyFile, _ := settingService.GetKeyFile()
 		userService := service.UserService{}
 		userModel, err := userService.GetFirstUser()
 		if err != nil {
-			fmt.Println("get current user info failed,error info:", err)
+			fmt.Println("get current user info failed, error info:", err)
 		}
 		username := userModel.Username
 		userpasswd := userModel.Password
 		if (username == "") || (userpasswd == "") {
 			fmt.Println("current username or password is empty")
 		}
-		fmt.Println("current pannel settings as follows:")
+		fmt.Println("current panel settings as follows:")
 		fmt.Println("username:", username)
 		fmt.Println("userpasswd:", userpasswd)
 		fmt.Println("port:", port)
+		fmt.Println("certFile:", certFile)
+		fmt.Println("keyFile:", keyFile)
 	}
 }
 
@@ -176,7 +180,7 @@ func updateTgbotSetting(tgBotToken string, tgBotChatid int, tgBotRuntime string)
 	}
 }
 
-func updateSetting(port int, username string, password string) {
+func updateSetting(port int, username string, password string, certFile string, keyFile string) {
 	err := database.InitDB(config.GetDBPath())
 	if err != nil {
 		fmt.Println(err)
@@ -190,7 +194,7 @@ func updateSetting(port int, username string, password string) {
 		if err != nil {
 			fmt.Println("set port failed:", err)
 		} else {
-			fmt.Printf("set port %v success", port)
+			fmt.Printf("set port %v success\n", port)
 		}
 	}
 	if username != "" || password != "" {
@@ -200,6 +204,22 @@ func updateSetting(port int, username string, password string) {
 			fmt.Println("set username and password failed:", err)
 		} else {
 			fmt.Println("set username and password success")
+		}
+	}
+	if certFile != "" {
+		err := settingService.SetCertFile(certFile)
+		if err != nil {
+			fmt.Println("set cert file failed:", err)
+		} else {
+			fmt.Printf("set cert file %v success\n", certFile)
+		}
+	}
+	if keyFile != "" {
+		err := settingService.SetKeyFile(keyFile)
+		if err != nil {
+			fmt.Println("set key file failed:", err)
+		} else {
+			fmt.Printf("set key file %v success\n", keyFile)
 		}
 	}
 }
@@ -223,6 +243,8 @@ func main() {
 	var port int
 	var username string
 	var password string
+	var certFile string
+	var keyFile string
 	var tgbottoken string
 	var tgbotchatid int
 	var enabletgbot bool
@@ -234,6 +256,8 @@ func main() {
 	settingCmd.IntVar(&port, "port", 0, "set panel port")
 	settingCmd.StringVar(&username, "username", "", "set login username")
 	settingCmd.StringVar(&password, "password", "", "set login password")
+	settingCmd.StringVar(&certFile, "cert", "", "set ssl cert file path")
+	settingCmd.StringVar(&keyFile, "key", "", "set ssl key file path")
 	settingCmd.StringVar(&tgbottoken, "tgbottoken", "", "set telegrame bot token")
 	settingCmd.StringVar(&tgbotRuntime, "tgbotRuntime", "", "set telegrame bot cron time")
 	settingCmd.IntVar(&tgbotchatid, "tgbotchatid", 0, "set telegrame bot chat id")
@@ -282,7 +306,7 @@ func main() {
 		if reset {
 			resetSetting()
 		} else {
-			updateSetting(port, username, password)
+			updateSetting(port, username, password, certFile, keyFile)
 		}
 		if show {
 			showSetting(show)

@@ -245,7 +245,7 @@
                 const msg = await HttpUtil.post(basePath + 'login', { username, password });
                 this.loading = false;
                 if (msg.success) {
-                    window.location.replace(basePath + 'xui/');
+                    window.location.replace(basePath + 'aether/');
                 }
             }
         }

@@ -33,7 +33,7 @@ func (a *IndexController) initRouter(g *gin.RouterGroup) {
 
 func (a *IndexController) index(c *gin.Context) {
 	if session.IsLogin(c) {
-		c.Redirect(http.StatusTemporaryRedirect, "xui/")
+		c.Redirect(http.StatusTemporaryRedirect, "aether/")
 		return
 	}
 	html(c, "login.html", "Aether VPN - Sign In", nil)

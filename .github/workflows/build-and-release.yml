@@ -11,8 +11,13 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      publish_release:
-        description: 'Publish as a GitHub Release (requires tag or draft release)'
+      tag_name:
+        description: 'Release Tag (leave empty to use config/version)'
+        required: false
+        type: string
+        default: ''
+      prerelease:
+        description: 'Mark as pre-release'
         required: false
         type: boolean
         default: false
@@ -22,12 +27,14 @@ permissions:
 
 jobs:
   build:
-    name: Build Packages
+    name: Build Packages & Release
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -45,10 +52,11 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/staging_amd64/aether-vpn/aether-vpn main.go
           cp aether-vpn.service dist/staging_amd64/aether-vpn/
           cp aether-vpn.sh dist/staging_amd64/aether-vpn/
+          cp certbot.sh dist/staging_amd64/aether-vpn/
           cp bin/geoip.dat dist/staging_amd64/aether-vpn/bin/
           cp bin/geosite.dat dist/staging_amd64/aether-vpn/bin/
           cp bin/xray-linux-amd64 dist/staging_amd64/aether-vpn/bin/
-          chmod +x dist/staging_amd64/aether-vpn/aether-vpn dist/staging_amd64/aether-vpn/aether-vpn.sh dist/staging_amd64/aether-vpn/bin/xray-linux-amd64
+          chmod +x dist/staging_amd64/aether-vpn/aether-vpn dist/staging_amd64/aether-vpn/aether-vpn.sh dist/staging_amd64/aether-vpn/certbot.sh dist/staging_amd64/aether-vpn/bin/xray-linux-amd64
           tar -czvf aether-vpn-linux-amd64.tar.gz -C dist/staging_amd64 aether-vpn
 
       - name: Build Linux arm64 package
@@ -57,10 +65,11 @@ jobs:
           CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/staging_arm64/aether-vpn/aether-vpn main.go
           cp aether-vpn.service dist/staging_arm64/aether-vpn/
           cp aether-vpn.sh dist/staging_arm64/aether-vpn/
+          cp certbot.sh dist/staging_arm64/aether-vpn/
           cp bin/geoip.dat dist/staging_arm64/aether-vpn/bin/
           cp bin/geosite.dat dist/staging_arm64/aether-vpn/bin/
           cp bin/xray-linux-arm64 dist/staging_arm64/aether-vpn/bin/
-          chmod +x dist/staging_arm64/aether-vpn/aether-vpn dist/staging_arm64/aether-vpn/aether-vpn.sh dist/staging_arm64/aether-vpn/bin/xray-linux-arm64
+          chmod +x dist/staging_arm64/aether-vpn/aether-vpn dist/staging_arm64/aether-vpn/aether-vpn.sh dist/staging_arm64/aether-vpn/certbot.sh dist/staging_arm64/aether-vpn/bin/xray-linux-arm64
           tar -czvf aether-vpn-linux-arm64.tar.gz -C dist/staging_arm64 aether-vpn
 
       - name: Generate Checksums
@@ -76,14 +85,35 @@ jobs:
             aether-vpn-linux-arm64.tar.gz
             sha256sums.txt
 
+      - name: Determine Release Tag
+        id: release_tag
+        if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))) || github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+          elif [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="$(cat config/version | tr -d '[:space:]')"
+            if [ -z "$TAG" ]; then
+              TAG="v0.3.5.0"
+            fi
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release tag determined as: $TAG"
+
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release)
+        if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))) || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.release_tag.outputs.tag }}
+          name: "Aether VPN ${{ steps.release_tag.outputs.tag }}"
           files: |
             aether-vpn-linux-amd64.tar.gz
             aether-vpn-linux-arm64.tar.gz
             sha256sums.txt
           generate_release_notes: true
           draft: false
-          prerelease: false
+          prerelease: ${{ github.event.inputs.prerelease || false }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,13 +1,13 @@
 {{define "menuItems"}}
-<a-menu-item key="{{ .base_path }}xui/">
+<a-menu-item key="{{ .base_path }}aether/">
     <a-icon type="dashboard"></a-icon>
     <span>System Status</span>
 </a-menu-item>
-<a-menu-item key="{{ .base_path }}xui/inbounds">
+<a-menu-item key="{{ .base_path }}aether/inbounds">
     <a-icon type="user"></a-icon>
     <span>Inbounds</span>
 </a-menu-item>
-<a-menu-item key="{{ .base_path }}xui/setting">
+<a-menu-item key="{{ .base_path }}aether/setting">
     <a-icon type="setting"></a-icon>
     <span>Panel Settings</span>
 </a-menu-item>
@@ -39,34 +39,12 @@
         {{template "menuItems" .}}
     </a-menu>
 </a-layout-sider>
-<a-drawer id="sider-drawer" placement="left" :closable="false"
-          @close="siderDrawer.close()"
-          :visible="siderDrawer.visible" :wrap-style="{ padding: 0 }">
-    <div class="drawer-handle" @click="siderDrawer.change()" slot="handle">
-        <a-icon :type="siderDrawer.visible ? 'close' : 'menu-fold'"></a-icon>
-    </div>
-    <div class="sider-brand" style="background: #000000;">
-        <img src="{{ .base_path }}assets/images/icon.png" class="brand-logo-img" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/favicon.svg';">
-        <span class="brand-title">Aether VPN</span>
-        <span class="brand-badge">PANEL</span>
-    </div>
-    <a-menu theme="dark" mode="inline" :selected-keys="['{{ .request_uri }}']"
-        @click="({key}) => key.startsWith('http') ? window.open(key) : location.href = key">
-        {{template "menuItems" .}}
-    </a-menu>
-</a-drawer>
 <script>
     const siderDrawer = {
         visible: false,
-        show() {
-            this.visible = true;
-        },
-        close() {
-            this.visible = false;
-        },
-        change() {
-            this.visible = !this.visible;
-        }
+        show() {},
+        close() {},
+        change() {}
     };
 </script>
 {{end}}

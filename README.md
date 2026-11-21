@@ -24,7 +24,7 @@
 - **Full Protocol Suite**: VMess, VLESS, Trojan, Shadowsocks, Dokodemo-door, Socks, and HTTP.
 - **Advanced Transports**: TCP, mKCP, WebSocket, HTTP/2, gRPC, and QUIC.
 - **TLS / XTLS & Flow**: Full SNI routing, automatic fallback configuration, and XTLS support.
-- **Automated SSL Lifecycle**: Built-in Acme.sh automation for 1-click Let's Encrypt certificates with auto-renewal.
+- **Automated SSL Lifecycle**: Built-in Certbot automation for 1-click Let's Encrypt certificates with auto-renewal and automatic panel SSL configuration.
 - **Resource Telemetry**: Live visual meters for CPU, Memory, Swap, Disk, and real-time bandwidth throughput (↑ / ↓).
 - **Client & Traffic Controls**: Per-user bandwidth quotas, expiration timers, and instant QR code sharing links.
 - **Dedicated CLI Utility**: Native `aether-vpn` management CLI for terminal service control, credential resets, and diagnostics.

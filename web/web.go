@@ -84,7 +84,7 @@ type Server struct {
 
 	index  *controller.IndexController
 	server *controller.ServerController
-	xui    *controller.XUIController
+	aether *controller.AetherController
 
 	xrayService    service.XrayService
 	settingService service.SettingService
@@ -206,7 +206,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 
 	s.index = controller.NewIndexController(g)
 	s.server = controller.NewServerController(g)
-	s.xui = controller.NewXUIController(g)
+	s.aether = controller.NewAetherController(g)
 
 	return engine, nil
 }

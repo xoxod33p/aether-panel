@@ -543,7 +543,7 @@ show_menu() {
 ---------------------------------------------------------------------------------
  ${GREEN}14.${PLAIN} Update Geosite and GeoIP Rules
  ${GREEN}15.${PLAIN} Install TCP BBR Acceleration
- ${GREEN}16.${PLAIN} Issue SSL Certificate via ACME
+ ${GREEN}16.${PLAIN} Issue SSL Certificate via Certbot
  ${GREEN}17.${PLAIN} Open All Firewall Ports
  ${GREEN}18.${PLAIN} Install & Configure Cloudflare WARP
  --------------------------------------------------------------------------------   "
@@ -576,7 +576,7 @@ show_menu() {
         13) check_install && disable_aether ;;
         14) update_geo ;;
         15) install_bbr ;;
-        16) wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/acme.sh && bash acme.sh && before_show_menu ;;
+        16) if [[ -f /usr/local/aether-vpn/certbot.sh ]]; then bash /usr/local/aether-vpn/certbot.sh; else wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/certbot.sh && bash certbot.sh; fi && before_show_menu ;;
         17) open_ports ;;
         18) wget -N --no-check-certificate https://raw.githubusercontent.com/taffychan/warp/main/warp.sh && bash warp.sh && before_show_menu ;;
         *) red "Please enter a valid option [0-18]" ;;

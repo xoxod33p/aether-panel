@@ -107,7 +107,7 @@ class DBInbound {
     }
 
     get isExpiry() {
-        return this.expiryTime < new Date().getTime();
+        return this.expiryTime > 0 && this.expiryTime < new Date().getTime();
     }
 
     toInbound() {

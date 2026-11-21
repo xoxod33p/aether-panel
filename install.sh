@@ -164,6 +164,8 @@ panel_config() {
     done
     /usr/local/aether-vpn/aether-vpn setting -username ${config_account} -password ${config_password} >/dev/null 2>&1
     /usr/local/aether-vpn/aether-vpn setting -port ${config_port} >/dev/null 2>&1
+    read -rp "Please set domain for SSL certificate [leave blank to skip]: " config_domain
+    config_domain=$(echo "$config_domain" | tr -d ' ')
 }
 
 install_aether_vpn() {
@@ -208,6 +210,17 @@ install_aether_vpn() {
     systemctl enable aether-vpn >/dev/null 2>&1
     systemctl start aether-vpn 
     systemctl restart aether-vpn
+    
+    if [[ -n "$config_domain" ]]; then
+        yellow "Configuring SSL certificate for ${config_domain} via Certbot..."
+        if [[ -f /usr/local/aether-vpn/certbot.sh ]]; then
+            bash /usr/local/aether-vpn/certbot.sh install "$config_domain"
+        else
+            wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/certbot.sh -O /tmp/certbot.sh
+            bash /tmp/certbot.sh install "$config_domain"
+            rm -f /tmp/certbot.sh
+        fi
+    fi
     
     cd $cur_dir
     rm -f install.sh

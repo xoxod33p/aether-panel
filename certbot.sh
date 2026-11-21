@@ -157,33 +157,22 @@ EOF
     echo ""
 }
 
-issue_standalone() {
-    install_certbot
-    check_port_80
-
-    echo ""
-    read -rp "Please enter your domain name (e.g. vpn.example.com): " domain
+direct_issue() {
+    local domain=$1
     domain=$(echo "$domain" | tr -d ' ')
     if [[ -z "$domain" ]]; then
         red "Domain name cannot be empty."
-        back2menu
+        return 1
     fi
 
-    read -rp "Please enter your email for Let's Encrypt alerts [optional]: " email
-    email=$(echo "$email" | tr -d ' ')
+    install_certbot
+    check_port_80
 
-    local email_args
-    if [[ -z "$email" ]]; then
-        email_args="--register-unsafely-without-email"
-    else
-        email_args="--email $email"
-    fi
-
-    yellow "Requesting certificate from Let's Encrypt via Certbot standalone..."
+    yellow "Requesting certificate from Let's Encrypt for $domain via Certbot standalone..."
     certbot certonly --standalone \
         --agree-tos \
         --non-interactive \
-        $email_args \
+        --register-unsafely-without-email \
         -d "$domain"
 
     if [[ $? -eq 0 && -f "/etc/letsencrypt/live/${domain}/fullchain.pem" ]]; then
@@ -196,12 +185,24 @@ issue_standalone() {
         echo ""
         apply_cert_to_panel "$domain"
     else
-        red "Certificate issuance failed."
+        red "Certificate issuance failed for $domain."
         yellow "Please ensure:"
         yellow "1. Domain DNS A/AAAA record points to this server's public IP."
         yellow "2. Port 80 is accessible from the internet and firewall is open."
         yellow "3. Cloudflare proxy is turned off (DNS only) during verification."
+        return 1
     fi
+}
+
+issue_standalone() {
+    echo ""
+    read -rp "Please enter your domain name (e.g. vpn.example.com): " domain
+    domain=$(echo "$domain" | tr -d ' ')
+    if [[ -z "$domain" ]]; then
+        red "Domain name cannot be empty."
+        back2menu
+    fi
+    direct_issue "$domain"
     back2menu
 }
 
@@ -326,7 +327,12 @@ set_existing_cert() {
     back2menu
 }
 
-# Support direct command-line arguments: e.g. "certbot.sh apply <domain>"
+# Support direct command-line arguments: e.g. "certbot.sh install <domain>" or "certbot.sh apply <domain>"
+if [[ "$1" == "install" && -n "$2" ]]; then
+    direct_issue "$2"
+    exit $?
+fi
+
 if [[ "$1" == "apply" && -n "$2" ]]; then
     apply_cert_to_panel "$2"
     exit $?

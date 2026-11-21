@@ -723,26 +723,27 @@ textarea::placeholder,
 }
 
 .ant-dropdown-menu-item:hover, .ant-select-dropdown-menu-item-active {
-    background: var(--bg-surface-hover) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
     color: #ffffff !important;
 }
 
 .ant-select-dropdown-menu-item-selected {
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-weight: 700 !important;
+    background: rgba(99, 102, 241, 0.25) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-left: 3px solid #6366f1 !important;
 }
 
 .ant-select-dropdown-menu-item-selected *,
 .ant-select-dropdown-menu-item-selected:hover *,
 .ant-select-dropdown-menu-item-selected.ant-select-dropdown-menu-item-active * {
-    color: #000000 !important;
+    color: #ffffff !important;
 }
 
 .ant-select-dropdown-menu-item-selected:hover,
 .ant-select-dropdown-menu-item-selected.ant-select-dropdown-menu-item-active {
-    background: #f1f5f9 !important;
-    color: #000000 !important;
+    background: rgba(99, 102, 241, 0.35) !important;
+    color: #ffffff !important;
 }
 
 .inbound-card-grid {

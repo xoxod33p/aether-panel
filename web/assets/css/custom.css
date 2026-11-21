@@ -97,6 +97,15 @@ body {
     transition: all 0.25s ease !important;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
     z-index: 100;
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+.ant-layout-sider::-webkit-scrollbar {
+    width: 4px;
 }
 
 .sider-container {
@@ -428,6 +437,13 @@ body {
     background-color: transparent !important;
 }
 
+.ant-progress-text,
+.ant-progress-circle .ant-progress-text {
+    color: #ffffff !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-weight: 700 !important;
+}
+
 /* Ant Cards Overrides */
 .ant-card {
     background: var(--bg-card) !important;
@@ -532,8 +548,12 @@ body {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12) !important;
 }
 
-.ant-input::placeholder {
-    color: var(--text-dim) !important;
+.ant-input::placeholder,
+.ant-input-number-input::placeholder,
+input::placeholder,
+textarea::placeholder,
+.ant-select-selection__placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .ant-form-item-label > label {

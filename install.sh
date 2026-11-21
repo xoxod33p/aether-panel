@@ -209,8 +209,6 @@ install_aether_vpn() {
     systemctl start aether-vpn 
     systemctl restart aether-vpn
     
-    setup_ssl_prompt
-    
     cd $cur_dir
     rm -f install.sh
     clean_version=${last_version#v}
@@ -238,23 +236,7 @@ install_aether_vpn() {
     echo -e "aether-vpn update       - Update panel"
     echo -e "------------------------------------------------------------------------------"
     echo -e ""
-    yellow "(Run 'aether-vpn' in terminal to manage the panel or change settings)"
-}
-
-setup_ssl_prompt() {
-    echo ""
-    yellow "------------------------------------------------------------------------------"
-    yellow "SSL / HTTPS CONFIGURATION (CERTBOT)"
-    yellow "------------------------------------------------------------------------------"
-    read -rp "Do you want to configure an SSL certificate via Certbot now to automatically secure the panel with HTTPS? [y/N]: " ssl_yn
-    if [[ $ssl_yn =~ ^[Yy]$ ]]; then
-        if [[ -f /usr/local/aether-vpn/certbot.sh ]]; then
-            bash /usr/local/aether-vpn/certbot.sh
-        else
-            wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/certbot.sh -O /tmp/certbot.sh && bash /tmp/certbot.sh
-            rm -f /tmp/certbot.sh
-        fi
-    fi
+    yellow "(Run 'aether-vpn' in terminal to manage the panel or configure SSL)"
 }
 
 install_aether_vpn $1

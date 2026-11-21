@@ -194,13 +194,7 @@ issue_standalone() {
         cyan  " Certificate Path : /etc/letsencrypt/live/${domain}/fullchain.pem"
         cyan  " Private Key Path : /etc/letsencrypt/live/${domain}/privkey.pem"
         echo ""
-        read -rp "Do you want to automatically set these SSL certificates to the Aether VPN panel? [Y/n]: " set_panel_yn
-        [[ -z "$set_panel_yn" ]] && set_panel_yn="y"
-        if [[ $set_panel_yn =~ ^[Yy]$ ]]; then
-            apply_cert_to_panel "$domain"
-        else
-            yellow "Skipped setting certificates to panel. The panel will continue using current settings."
-        fi
+        apply_cert_to_panel "$domain"
     else
         red "Certificate issuance failed."
         yellow "Please ensure:"
@@ -281,13 +275,7 @@ EOF
         cyan  " Certificate Path : /etc/letsencrypt/live/${target_domain}/fullchain.pem"
         cyan  " Private Key Path : /etc/letsencrypt/live/${target_domain}/privkey.pem"
         echo ""
-        read -rp "Do you want to automatically set these SSL certificates to the Aether VPN panel? [Y/n]: " set_panel_yn
-        [[ -z "$set_panel_yn" ]] && set_panel_yn="y"
-        if [[ $set_panel_yn =~ ^[Yy]$ ]]; then
-            apply_cert_to_panel "$target_domain"
-        else
-            yellow "Skipped setting certificates to panel. The panel will continue using current settings."
-        fi
+        apply_cert_to_panel "$target_domain"
     else
         red "Cloudflare DNS certificate issuance failed. Please check your API credentials."
     fi
@@ -331,11 +319,7 @@ set_existing_cert() {
     read -rp "Enter the domain name configured under /etc/letsencrypt/live/: " domain
     domain=$(echo "$domain" | tr -d ' ')
     if [[ -f "/etc/letsencrypt/live/${domain}/fullchain.pem" ]]; then
-        read -rp "Do you want to automatically set these SSL certificates to the Aether VPN panel? [Y/n]: " set_panel_yn
-        [[ -z "$set_panel_yn" ]] && set_panel_yn="y"
-        if [[ $set_panel_yn =~ ^[Yy]$ ]]; then
-            apply_cert_to_panel "$domain"
-        fi
+        apply_cert_to_panel "$domain"
     else
         red "Certificate files not found for ${domain}."
     fi

@@ -941,7 +941,7 @@ class Inbound extends XrayCommonClass {
             path: path,
             tls: this.stream.security,
         };
-        return 'vmess:
+        return 'vmess://' + base64(JSON.stringify(obj, null, 2));
     }
 
     genVLESSLink(address = '', remark='', client = null) {
@@ -1013,7 +1013,7 @@ class Inbound extends XrayCommonClass {
             params.set("flow", this.settings.vlesses[0].flow);
         }
 
-        const link = `vless:
+        const link = `vless://${uuid}@${address}:${port}`;
         const url = new URL(link);
         for (const [key, value] of params) {
             url.searchParams.set(key, value)
@@ -1028,7 +1028,7 @@ class Inbound extends XrayCommonClass {
         if (!ObjectUtil.isEmpty(server)) {
             address = server;
         }
-        return 'ss:
+        return 'ss://' + safeBase64(settings.method + ':' + settings.password + '@' + address + ':' + this.port)
             + '#' + encodeURIComponent(remark);
     }
 
@@ -1036,7 +1036,7 @@ class Inbound extends XrayCommonClass {
         let settings = this.settings;
         const trojanClient = client || (settings.clients && settings.clients[0]);
         const password = trojanClient ? trojanClient.password : '';
-        return `trojan:
+        return `trojan://${password}@${address}:${this.port}#${encodeURIComponent(remark)}`;
     }
 
     genLink(address='', remark='') {

@@ -32,7 +32,7 @@
                     this.clipboard = new ClipboardJS('#qr-modal-ok-btn', {
                         text: () => this.copyText,
                     });
-                    this.clipboard.on('success', () => app.$message.success('{{ i18n "copied" }}'));
+                    this.clipboard.on('success', () => (window.app || qrModalApp).$message.success('{{ i18n "copied" }}'));
                 }
                 if (this.qrcode === null) {
                     this.qrcode = new QRious({

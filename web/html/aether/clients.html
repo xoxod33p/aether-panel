@@ -299,10 +299,10 @@
     </a-layout>
 </a-layout>
 
-{{template "qrcodeModal"}}
 {{template "js" .}}
+{{template "qrcodeModal"}}
 <script>
-    new Vue({
+    window.app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
         data: {
@@ -464,18 +464,32 @@
                 return 'linear-gradient(90deg, #00f2fe, #4facfe)';
             },
             showClientQr(item) {
-                if (!item.link) {
-                    this.$message.warning('Link not available for this protocol');
+                let link = item.link;
+                if (!link && item.dbInbound) {
+                    try {
+                        link = item.dbInbound.genClientLink(item.clientObj) || item.dbInbound.genLink();
+                        item.link = link;
+                    } catch (e) {}
+                }
+                if (!link) {
+                    this.$message.warning('Link not available for this client');
                     return;
                 }
-                qrModal.show(item.email + ' - QR Code', item.link);
+                qrModal.show(item.email + ' - QR Code', link);
             },
             copyClientLink(item) {
-                if (!item.link) {
-                    this.$message.warning('Link not available for this protocol');
+                let link = item.link;
+                if (!link && item.dbInbound) {
+                    try {
+                        link = item.dbInbound.genClientLink(item.clientObj) || item.dbInbound.genLink();
+                        item.link = link;
+                    } catch (e) {}
+                }
+                if (!link) {
+                    this.$message.warning('Link not available for this client');
                     return;
                 }
-                ClipboardUtil.copy(item.link);
+                ClipboardUtil.copy(link);
                 this.$message.success('Client link copied to clipboard!');
             },
             copyText(text, label='Text') {

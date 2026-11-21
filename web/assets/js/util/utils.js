@@ -289,3 +289,36 @@ class ObjectUtil {
     }
 
 }
+
+class ClipboardUtil {
+    static copy(text) {
+        if (!text) return false;
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).catch(() => {
+                this.fallbackCopy(text);
+            });
+            return true;
+        }
+        return this.fallbackCopy(text);
+    }
+
+    static fallbackCopy(text) {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            textArea.remove();
+            return true;
+        } catch (error) {
+            console.error('Fallback copy failed', error);
+            return false;
+        }
+    }
+}
+window.ClipboardUtil = ClipboardUtil;

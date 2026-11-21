@@ -193,16 +193,7 @@
 
                         <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                             <a-input-search placeholder="Search remark, port, protocol..." v-model="searchKey"
-                                            style="width: 240px;" allow-clear></a-input-search>
-
-                            <div class="view-mode-toggle">
-                                <div class="view-mode-btn" :class="{ active: viewMode === 'cards' }" @click="viewMode = 'cards'">
-                                    <a-icon type="appstore"></a-icon> Cards
-                                </div>
-                                <div class="view-mode-btn" :class="{ active: viewMode === 'table' }" @click="viewMode = 'table'">
-                                    <a-icon type="bars"></a-icon> Table
-                                </div>
-                            </div>
+                                            style="width: 260px;" allow-clear></a-input-search>
 
                             <a-button type="primary" icon="plus" @click="openAddInbound" style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
                                 Add Inbound
@@ -210,8 +201,8 @@
                         </div>
                     </div>
 
-                    <!-- CARDS VIEW (DEFAULT) -->
-                    <div v-if="viewMode === 'cards'">
+                    <!-- CARDS VIEW -->
+                    <div>
                         <div class="inbound-card-grid">
                             <div v-for="(dbInbound, index) in filteredInbounds" :key="dbInbound.id"
                                  class="inbound-card" :class="{ 'is-disabled': !dbInbound.enable }">
@@ -246,19 +237,6 @@
                                         <a-tag v-if="dbInbound.isExpiry" style="background: rgba(239, 68, 68, 0.15) !important; color: #ef4444 !important; border-color: rgba(239, 68, 68, 0.3) !important;">
                                             EXPIRED
                                         </a-tag>
-                                    </div>
-
-                                    <!-- Client Key / UUID Quick Peek Box -->
-                                    <div class="client-key-row">
-                                        <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
-                                            <a-icon type="key" style="color: var(--text-dim);"></a-icon>
-                                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                [[ getClientKeyPreview(dbInbound) ]]
-                                            </span>
-                                        </div>
-                                        <button class="copy-key-btn" @click="copyKey(dbInbound)" title="Copy Key">
-                                            <a-icon type="copy"></a-icon>
-                                        </button>
                                     </div>
 
                                     <!-- Bandwidth Quota Management Card -->
@@ -304,6 +282,9 @@
                                     <a-button icon="edit" @click="openEditInbound(dbInbound)">
                                         Edit
                                     </a-button>
+                                    <a-button type="danger" ghost icon="delete" @click="delInbound(dbInbound)" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4); font-weight: 600;" title="Delete Inbound">
+                                        Delete
+                                    </a-button>
                                     <a-dropdown :trigger="['click']">
                                         <a-button class="action-more-btn">
                                             <a-icon type="more"></a-icon>
@@ -314,11 +295,6 @@
                                             </a-menu-item>
                                             <a-menu-item key="resetTraffic">
                                                 <a-icon type="reload"></a-icon> Reset Bandwidth Stats
-                                            </a-menu-item>
-                                            <a-menu-item key="delete">
-                                                <span style="color: #ef4444;">
-                                                    <a-icon type="delete"></a-icon> Delete Inbound
-                                                </span>
                                             </a-menu-item>
                                         </a-menu>
                                     </a-dropdown>
@@ -336,66 +312,6 @@
                             </a-button>
                         </div>
                     </div>
-
-                    <!-- TABLE VIEW (ALTERNATIVE) -->
-                    <div v-else style="background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); overflow: hidden; margin-top: 20px;">
-                        <a-table :columns="columns" :row-key="dbInbound => dbInbound.id"
-                                 :data-source="filteredInbounds"
-                                 :loading="spinning" :scroll="{ x: 1200 }"
-                                 :pagination="false">
-                            <template slot="action" slot-scope="text, dbInbound">
-                                <a-dropdown :trigger="['click']">
-                                    <a-button size="small" style="background: transparent; border: 1px solid var(--border-subtle); color: #ffffff;">
-                                        <a-icon type="ellipsis"></a-icon>
-                                    </a-button>
-                                    <a-menu slot="overlay" @click="a => clickAction(a, dbInbound)">
-                                        <a-menu-item v-if="dbInbound.hasLink()" key="qrcode">
-                                            <a-icon type="qrcode"></a-icon> QR Code
-                                        </a-menu-item>
-                                        <a-menu-item key="edit">
-                                            <a-icon type="edit"></a-icon> Edit
-                                        </a-menu-item>
-                                        <a-menu-item key="resetTraffic">
-                                            <a-icon type="retweet"></a-icon> Reset Bandwidth
-                                        </a-menu-item>
-                                        <a-menu-item key="delete">
-                                            <span style="color: #ef4444;">
-                                                <a-icon type="delete"></a-icon> Delete
-                                            </span>
-                                        </a-menu-item>
-                                    </a-menu>
-                                </a-dropdown>
-                            </template>
-
-                            <template slot="protocol" slot-scope="text, dbInbound">
-                                <span class="proto-badge" :class="'proto-' + dbInbound.protocol.toLowerCase()">
-                                    [[ dbInbound.protocol.toUpperCase() ]]
-                                </span>
-                            </template>
-
-                            <template slot="traffic" slot-scope="text, dbInbound">
-                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">
-                                    [[ sizeFormat(dbInbound.up + dbInbound.down) ]]
-                                    <span v-if="dbInbound.total > 0" style="color: var(--text-dim);"> / [[ sizeFormat(dbInbound.total) ]]</span>
-                                </span>
-                            </template>
-
-                            <template slot="stream" slot-scope="text, dbInbound, index">
-                                <a-tag v-if="getInboundStreamNetwork(index)">[[ getInboundStreamNetwork(index) ]]</a-tag>
-                                <a-tag v-if="getInboundStreamTls(index)">[[ getInboundStreamTls(index) ]]</a-tag>
-                            </template>
-
-                            <template slot="enable" slot-scope="text, dbInbound">
-                                <a-switch v-model="dbInbound.enable" @change="switchEnable(dbInbound)" size="small"></a-switch>
-                            </template>
-
-                            <template slot="expiryTime" slot-scope="text, dbInbound">
-                                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;" :style="{ color: dbInbound.isExpiry ? '#ef4444' : 'inherit' }">
-                                    [[ dbInbound.expiryTime > 0 ? DateUtil.formatMillis(dbInbound.expiryTime) : 'Never' ]]
-                                </span>
-                            </template>
-                        </a-table>
-                    </div>
                 </a-spin>
             </div>
         </a-layout-content>
@@ -404,52 +320,6 @@
 
 {{template "js" .}}
 <script>
-    const columns = [{
-        title: "Actions",
-        align: 'center',
-        width: 80,
-        scopedSlots: { customRender: 'action' },
-    }, {
-        title: "Status",
-        align: 'center',
-        width: 70,
-        scopedSlots: { customRender: 'enable' },
-    }, {
-        title: "ID",
-        align: 'center',
-        dataIndex: "id",
-        width: 60,
-    }, {
-        title: "Remark / Tag",
-        align: 'left',
-        dataIndex: "remark",
-    }, {
-        title: "Protocol",
-        align: 'center',
-        width: 100,
-        scopedSlots: { customRender: 'protocol' },
-    }, {
-        title: "Port",
-        align: 'center',
-        dataIndex: "port",
-        width: 90,
-    }, {
-        title: "Bandwidth Used",
-        align: 'center',
-        width: 180,
-        scopedSlots: { customRender: 'traffic' },
-    }, {
-        title: "Transport",
-        align: 'center',
-        width: 130,
-        scopedSlots: { customRender: 'stream' },
-    }, {
-        title: "Expiry Date",
-        align: 'center',
-        width: 150,
-        scopedSlots: { customRender: 'expiryTime' },
-    }];
-
     const app = new Vue({
         delimiters: ['[[', ']]'],
         el: '#app',
@@ -460,7 +330,6 @@
             searchedInbounds: [],
             searchKey: '',
             protocolFilter: 'ALL',
-            viewMode: 'cards',
         },
         methods: {
             loading(spinning=true) {

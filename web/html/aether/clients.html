@@ -350,11 +350,14 @@
                 this.loading = true;
                 try {
                     const msg = await HttpUtil.post('/aether/inbound/list');
-                    if (msg.success) {
+                    if (msg && msg.success && Array.isArray(msg.obj)) {
                         this.inbounds = msg.obj.map(obj => new DBInbound(obj));
                         this.extractClients();
+                    } else if (msg && !msg.success) {
+                        this.$message.error(msg.msg || 'Failed to load inbounds');
                     }
                 } catch (e) {
+                    console.error('Failed to load inbounds', e);
                     this.$message.error('Failed to load inbounds');
                 } finally {
                     this.loading = false;
@@ -395,6 +398,18 @@
                         const limitBytes = totalGB * 1073741824;
                         const isOverQuota = totalGB > 0 && (up + down) >= limitBytes;
 
+                        let clientLink = '';
+                        try {
+                            if (typeof dbInbound.genClientLink === 'function') {
+                                clientLink = dbInbound.genClientLink(c);
+                            }
+                            if (!clientLink && typeof dbInbound.genLink === 'function') {
+                                clientLink = dbInbound.genLink();
+                            }
+                        } catch (err) {
+                            console.warn('Link generation error', err);
+                        }
+
                         const item = {
                             clientObj: c,
                             dbInbound: dbInbound,
@@ -410,7 +425,7 @@
                             protocol: dbInbound.protocol,
                             port: dbInbound.port,
                             inboundRemark: dbInbound.remark,
-                            link: dbInbound.genClientLink(c) || dbInbound.genLink()
+                            link: clientLink
                         };
                         list.push(item);
                     }

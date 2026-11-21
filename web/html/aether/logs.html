@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+<style>
+    .logs-container {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .logs-status-bar {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 16px 22px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: var(--shadow-card);
+    }
+
+    .logs-status-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .live-stream-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+    }
+
+    .live-stream-badge.active {
+        background: rgba(16, 185, 129, 0.12);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .live-stream-badge.paused {
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .logs-controls-bar {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+    }
+
+    .filter-chips-group {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-subtle);
+        padding: 3px;
+        border-radius: 8px;
+        gap: 2px;
+    }
+
+    .filter-chip-btn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .filter-chip-btn:hover {
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .filter-chip-btn.active {
+        background: #ffffff;
+        color: #0b0f17;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .terminal-window {
+        background: #090c12;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 310px);
+        min-height: 480px;
+    }
+
+    .terminal-header {
+        background: #11141c;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .terminal-traffic-lights {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .traffic-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .terminal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: auto;
+        padding: 16px 20px;
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        font-size: 12.5px;
+        line-height: 1.65;
+        color: #cbd5e1;
+    }
+
+    .log-line {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 2px 4px;
+        border-radius: 4px;
+        transition: background 0.15s ease;
+        word-break: break-all;
+        white-space: pre-wrap;
+    }
+
+    .log-line:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .log-line-num {
+        color: #475569;
+        user-select: none;
+        min-width: 38px;
+        text-align: right;
+        font-size: 11px;
+    }
+
+    .log-tag-error {
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+    .log-tag-warn {
+        color: #f59e0b;
+        font-weight: 700;
+    }
+
+    .log-tag-info {
+        color: #38bdf8;
+    }
+
+    .log-tag-time {
+        color: #a855f7;
+    }
+
+    .terminal-footer {
+        background: #0d1017;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 8px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #64748b;
+        font-family: 'JetBrains Mono', monospace;
+    }
+</style>
+
+<body>
+<a-layout id="app" v-cloak>
+    {{template "commonSider" .}}
+    <a-layout id="content-layout">
+        <a-layout-content>
+            <div class="logs-container">
+                <div class="logs-status-bar">
+                    <div class="logs-status-left">
+                        <div class="live-stream-badge" :class="isStreaming ? 'active' : 'paused'">
+                            <span class="status-dot-pulse" :style="{ background: isStreaming ? '#10b981' : '#f59e0b', boxShadow: isStreaming ? '0 0 6px #10b981' : 'none' }"></span>
+                            <span>[[ isStreaming ? 'STREAMING ACTIVE' : 'STREAM PAUSED' ]]</span>
+                        </div>
+                        <a-tag style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border-color: rgba(99, 102, 241, 0.3); font-weight: 600;">
+                            <a-icon type="branches" style="margin-right: 4px;"></a-icon>Xray Core: [[ xrayVersion ]]
+                        </a-tag>
+                        <a-tag :style="{ background: xrayRunning ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', color: xrayRunning ? '#10b981' : '#ef4444', borderColor: xrayRunning ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)', fontWeight: '600' }">
+                            Status: [[ xrayRunning ? 'RUNNING' : 'STOPPED' ]]
+                        </a-tag>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 12px; color: #64748b; font-family: 'JetBrains Mono', monospace;">Server Time: [[ serverTime ]]</span>
+                    </div>
+                </div>
+
+                <div class="logs-controls-bar">
+                    <div class="filter-chips-group">
+                        <button class="filter-chip-btn" :class="{ active: sourceFilter === 'all' }" @click="sourceFilter = 'all'">
+                            All Logs
+                        </button>
+                        <button class="filter-chip-btn" :class="{ active: sourceFilter === 'xray' }" @click="sourceFilter = 'xray'">
+                            <a-icon type="thunderbolt"></a-icon> Xray Engine
+                        </button>
+                        <button class="filter-chip-btn" :class="{ active: sourceFilter === 'system' }" @click="sourceFilter = 'system'">
+                            <a-icon type="desktop"></a-icon> System Journal
+                        </button>
+                        <button class="filter-chip-btn" :class="{ active: sourceFilter === 'files' }" @click="sourceFilter = 'files'">
+                            <a-icon type="file-text"></a-icon> Access / Error Files
+                        </button>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <a-input-search placeholder="Filter log text, IP, level..." v-model="searchKey"
+                                        style="width: 240px;" allow-clear></a-input-search>
+
+                        <a-select v-model="pollInterval" style="width: 110px;" @change="restartTimer">
+                            <a-select-option :value="1000">Every 1s</a-select-option>
+                            <a-select-option :value="2000">Every 2s</a-select-option>
+                            <a-select-option :value="5000">Every 5s</a-select-option>
+                            <a-select-option :value="0">Manual</a-select-option>
+                        </a-select>
+
+                        <a-button :type="autoScroll ? 'primary' : 'default'" @click="autoScroll = !autoScroll"
+                                  :style="autoScroll ? 'background: linear-gradient(135deg, #6366f1, #8b5cf6) !important; border: none !important; color: #ffffff !important; font-weight: 700;' : ''"
+                                  title="Auto-scroll to bottom on new logs">
+                            <a-icon type="vertical-align-bottom"></a-icon>
+                            <span>Auto-Scroll</span>
+                        </a-button>
+
+                        <a-button @click="toggleStreaming" :type="isStreaming ? 'default' : 'primary'"
+                                  :style="!isStreaming ? 'background: #10b981 !important; border-color: #10b981 !important; color: #ffffff !important; font-weight: 700;' : ''">
+                            <a-icon :type="isStreaming ? 'pause' : 'caret-right'"></a-icon>
+                            <span>[[ isStreaming ? 'Pause' : 'Resume' ]]</span>
+                        </a-button>
+
+                        <a-button icon="reload" @click="fetchLogs" title="Refresh Now"></a-button>
+                        <a-button icon="copy" @click="copyLogs" title="Copy Current Logs"></a-button>
+                        <a-button icon="download" @click="downloadLogs" title="Download Log File"></a-button>
+                        <a-button type="danger" ghost icon="delete" @click="clearLogs" title="Clear In-Memory Logs"></a-button>
+                    </div>
+                </div>
+
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <div class="terminal-traffic-lights">
+                            <span class="traffic-dot" style="background: #ef4444;"></span>
+                            <span class="traffic-dot" style="background: #f59e0b;"></span>
+                            <span class="traffic-dot" style="background: #10b981;"></span>
+                            <span style="margin-left: 10px; font-size: 11.5px; color: #64748b; font-family: 'JetBrains Mono', monospace;">aether-vpn-live-console</span>
+                        </div>
+                        <div style="font-size: 11px; color: #475569; font-family: 'JetBrains Mono', monospace;">
+                            Showing [[ filteredLogs.length ]] of [[ rawLogs.length ]] lines
+                        </div>
+                    </div>
+
+                    <div class="terminal-body" ref="terminalBody">
+                        <div v-if="filteredLogs.length === 0" style="text-align: center; padding: 100px 20px; color: #475569;">
+                            <a-icon type="code" style="font-size: 40px; margin-bottom: 12px;"></a-icon>
+                            <div>[[ rawLogs.length === 0 ? 'No log lines collected yet. Waiting for incoming activity...' : 'No log lines match current search filter.' ]]</div>
+                        </div>
+
+                        <div v-for="(line, index) in filteredLogs" :key="index" class="log-line">
+                            <span class="log-line-num">[[ index + 1 ]]</span>
+                            <span v-html="formatLine(line)"></span>
+                        </div>
+                    </div>
+
+                    <div class="terminal-footer">
+                        <span>Terminal Buffer: Max 1000 lines</span>
+                        <span>Auto-Scroll: [[ autoScroll ? 'ON' : 'OFF' ]] &bull; Poll: [[ pollInterval > 0 ? (pollInterval / 1000) + 's' : 'OFF' ]]</span>
+                    </div>
+                </div>
+            </div>
+        </a-layout-content>
+    </a-layout>
+</a-layout>
+
+{{template "js" .}}
+<script>
+    const app = new Vue({
+        el: '#app',
+        delimiters: ['[[', ']]'],
+        data: {
+            xrayRunning: false,
+            xrayVersion: 'Unknown',
+            serverTime: '',
+            sourceFilter: 'all',
+            searchKey: '',
+            isStreaming: true,
+            autoScroll: true,
+            pollInterval: 2000,
+            timer: null,
+            rawLogs: [],
+            xrayLogs: [],
+            systemLogs: [],
+            fileLogs: [],
+        },
+        computed: {
+            currentPool() {
+                switch (this.sourceFilter) {
+                    case 'xray': return this.xrayLogs;
+                    case 'system': return this.systemLogs;
+                    case 'files': return this.fileLogs;
+                    default:
+                        const combined = [...this.xrayLogs, ...this.systemLogs, ...this.fileLogs];
+                        return combined;
+                }
+            },
+            filteredLogs() {
+                let pool = this.currentPool;
+                if (!this.searchKey) {
+                    return pool;
+                }
+                const key = this.searchKey.toLowerCase();
+                return pool.filter(l => l && l.toLowerCase().includes(key));
+            }
+        },
+        mounted() {
+            this.fetchLogs();
+            this.restartTimer();
+        },
+        beforeDestroy() {
+            if (this.timer) {
+                clearInterval(this.timer);
+            }
+        },
+        methods: {
+            async fetchLogs() {
+                try {
+                    const res = await HttpUtil.get('/aether/logs/data?limit=300');
+                    if (res && res.success && res.obj) {
+                        const data = res.obj;
+                        this.xrayRunning = data.running;
+                        this.xrayVersion = data.version || 'Unknown';
+                        this.serverTime = data.serverTime || '';
+                        this.xrayLogs = data.xrayLogs || [];
+                        this.systemLogs = data.systemLogs || [];
+                        this.fileLogs = data.fileLogs || [];
+                        this.rawLogs = [...this.xrayLogs, ...this.systemLogs, ...this.fileLogs];
+
+                        if (this.autoScroll) {
+                            this.$nextTick(() => {
+                                this.scrollToBottom();
+                            });
+                        }
+                    }
+                } catch (e) {
+                }
+            },
+            scrollToBottom() {
+                const el = this.$refs.terminalBody;
+                if (el) {
+                    el.scrollTop = el.scrollHeight;
+                }
+            },
+            toggleStreaming() {
+                this.isStreaming = !this.isStreaming;
+                if (this.isStreaming) {
+                    this.restartTimer();
+                    this.fetchLogs();
+                } else if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+            },
+            restartTimer() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                }
+                if (this.isStreaming && this.pollInterval > 0) {
+                    this.timer = setInterval(() => {
+                        this.fetchLogs();
+                    }, this.pollInterval);
+                }
+            },
+            async clearLogs() {
+                await HttpUtil.post('/aether/logs/clear');
+                this.xrayLogs = [];
+                this.rawLogs = [];
+                this.$message.success('In-memory log stream cleared');
+            },
+            copyLogs() {
+                const text = this.filteredLogs.join('\n');
+                if (!text) {
+                    this.$message.warning('No logs to copy');
+                    return;
+                }
+                ClipboardUtil.copy(text);
+                this.$message.success('Copied ' + this.filteredLogs.length + ' log lines to clipboard');
+            },
+            downloadLogs() {
+                const text = this.filteredLogs.join('\n');
+                if (!text) {
+                    this.$message.warning('No logs to download');
+                    return;
+                }
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `aether-vpn-logs-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.log`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+            formatLine(line) {
+                if (!line) return '';
+                let escaped = line
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+
+                escaped = escaped.replace(/(\b(?:[0-9]{4}\/[0-9]{2}\/[0-9]{2}|[0-9]{2}:[0-9]{2}:[0-9]{2}|[A-Z][a-z]{2}\s+[0-9]{1,2}\s+[0-9]{2}:[0-9]{2}:[0-9]{2})\b)/g,
+                    '<span class="log-tag-time">$1</span>');
+
+                escaped = escaped.replace(/(\[(?:Error|FATAL|ERR)\]|\b(?:ERROR|FATAL)\b)/gi,
+                    '<span class="log-tag-error">$1</span>');
+                escaped = escaped.replace(/(\[(?:Warning|WARN)\]|\b(?:WARNING|WARN)\b)/gi,
+                    '<span class="log-tag-warn">$1</span>');
+                escaped = escaped.replace(/(\[(?:Info|INF)\]|\b(?:INFO)\b)/gi,
+                    '<span class="log-tag-info">$1</span>');
+
+                return escaped;
+            }
+        }
+    });
+</script>
+</body>
+</html>

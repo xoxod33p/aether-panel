@@ -76,9 +76,11 @@
     }
 
     .filter-chip.active {
-        background: #ffffff;
-        color: #000000;
-        border-color: #ffffff;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+        font-weight: 700 !important;
     }
 
     .copy-key-btn {
@@ -193,7 +195,7 @@
                             <a-input-search placeholder="Search remark, port, protocol..." v-model="searchKey"
                                             style="width: 260px;" allow-clear></a-input-search>
 
-                            <a-button type="primary" icon="plus" @click="openAddInbound" style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
+                            <a-button type="primary" icon="plus" @click="openAddInbound" style="font-weight: 700;">
                                 Add Inbound
                             </a-button>
                         </div>
@@ -293,7 +295,7 @@
                             <a-icon type="gateway" style="font-size: 48px; color: var(--text-dim); margin-bottom: 16px;"></a-icon>
                             <h3 style="color: #ffffff; margin-bottom: 6px; font-weight: 700;">No Inbounds Found</h3>
                             <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 13px;">Create an inbound endpoint to start proxying traffic.</p>
-                            <a-button type="primary" icon="plus" @click="openAddInbound" style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
+                            <a-button type="primary" icon="plus" @click="openAddInbound" style="font-weight: 700;">
                                 Add Inbound
                             </a-button>
                         </div>

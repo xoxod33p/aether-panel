@@ -69,7 +69,7 @@
 
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <a-button type="primary" :disabled="saveBtnDisable" @click="updateAllSetting" icon="save"
-                                      style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
+                                      style="font-weight: 700;">
                                 Save Configuration
                             </a-button>
                             <a-button type="danger" @click="restartPanel" icon="reload">
@@ -106,7 +106,7 @@
                                             <a-input type="password" v-model="user.newPassword" placeholder="Enter new password"></a-input>
                                         </a-form-item>
                                         <a-form-item style="margin-top: 16px;">
-                                            <a-button type="primary" @click="updateUser" icon="check" style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
+                                            <a-button type="primary" @click="updateUser" icon="check" style="font-weight: 700;">
                                                 Update Credentials
                                             </a-button>
                                         </a-form-item>

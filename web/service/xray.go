@@ -51,6 +51,19 @@ func (s *XrayService) GetXrayVersion() string {
 	return p.GetVersion()
 }
 
+func (s *XrayService) GetXrayLogs(limit int) []string {
+	if p == nil {
+		return []string{}
+	}
+	return p.GetLogs(limit)
+}
+
+func (s *XrayService) ClearXrayLogs() {
+	if p != nil {
+		p.ClearLogs()
+	}
+}
+
 func (s *XrayService) GetXrayConfig() (*xray.Config, error) {
 	templateConfig, err := s.settingService.GetXrayConfigTemplate()
 	if err != nil {

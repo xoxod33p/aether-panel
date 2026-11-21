@@ -15,7 +15,10 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 	"aether-vpn/logger"
 	"aether-vpn/util/sys"
@@ -317,5 +320,43 @@ func (s *ServerService) UpdateXray(version string) error {
 	}
 
 	return nil
+}
 
+func (s *ServerService) GetSystemLogs(limit int) []string {
+	if limit <= 0 {
+		limit = 150
+	}
+	if runtime.GOOS != "linux" {
+		return []string{"System journal logs are only available on Linux systemd hosts."}
+	}
+	cmd := exec.Command("journalctl", "-u", "aether-vpn.service", "-n", fmt.Sprintf("%d", limit), "--no-pager")
+	out, err := cmd.Output()
+	if err != nil {
+		return []string{fmt.Sprintf("Failed to query journalctl: %v", err)}
+	}
+	text := strings.TrimSpace(string(out))
+	if len(text) == 0 {
+		return []string{"No system journal logs found for aether-vpn.service."}
+	}
+	return strings.Split(text, "\n")
+}
+
+func (s *ServerService) GetXrayFileLogs(limit int) []string {
+	paths := []string{"/var/log/xray/access.log", "/var/log/xray/error.log", "/usr/local/aether-vpn/bin/xray.log"}
+	var lines []string
+	for _, p := range paths {
+		if fi, err := os.Stat(p); err == nil && !fi.IsDir() && fi.Size() > 0 {
+			data, err := os.ReadFile(p)
+			if err == nil {
+				all := strings.Split(strings.TrimSpace(string(data)), "\n")
+				if len(all) > limit {
+					all = all[len(all)-limit:]
+				}
+				for _, l := range all {
+					lines = append(lines, fmt.Sprintf("[%s] %s", filepath.Base(p), l))
+				}
+			}
+		}
+	}
+	return lines
 }

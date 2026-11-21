@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 	"aether-vpn/util/common"
 )
@@ -80,6 +81,9 @@ type process struct {
 	config  *Config
 	lines   *queue.Queue
 	exitErr error
+
+	logLock sync.RWMutex
+	logs    []string
 }
 
 func newProcess(config *Config) *process {
@@ -87,7 +91,49 @@ func newProcess(config *Config) *process {
 		version: "Unknown",
 		config:  config,
 		lines:   queue.New(100),
+		logs:    make([]string, 0, 500),
 	}
+}
+
+func (p *process) addLog(line string) {
+	p.logLock.Lock()
+	if len(p.logs) >= 1000 {
+		p.logs = p.logs[1:]
+	}
+	p.logs = append(p.logs, line)
+	p.logLock.Unlock()
+
+	if p.lines.Len() >= 100 {
+		p.lines.Get(1)
+	}
+	p.lines.Put(line)
+}
+
+func (p *Process) GetLogs(limit int) []string {
+	if p.process == nil {
+		return []string{}
+	}
+	p.logLock.RLock()
+	defer p.logLock.RUnlock()
+	n := len(p.logs)
+	if n == 0 {
+		return []string{}
+	}
+	if limit <= 0 || limit > n {
+		limit = n
+	}
+	res := make([]string, limit)
+	copy(res, p.logs[n-limit:])
+	return res
+}
+
+func (p *Process) ClearLogs() {
+	if p.process == nil {
+		return
+	}
+	p.logLock.Lock()
+	defer p.logLock.Unlock()
+	p.logs = make([]string, 0, 500)
 }
 
 func (p *process) IsRunning() bool {
@@ -202,10 +248,7 @@ func (p *process) Start() (err error) {
 			if err != nil {
 				return
 			}
-			if p.lines.Len() >= 100 {
-				p.lines.Get(1)
-			}
-			p.lines.Put(string(line))
+			p.addLog(string(line))
 		}
 	}()
 
@@ -220,10 +263,7 @@ func (p *process) Start() (err error) {
 			if err != nil {
 				return
 			}
-			if p.lines.Len() >= 100 {
-				p.lines.Get(1)
-			}
-			p.lines.Put(string(line))
+			p.addLog(string(line))
 		}
 	}()
 

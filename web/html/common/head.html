@@ -85,34 +85,84 @@
             color: #ffffff !important;
             background: rgba(255, 255, 255, 0.08) !important;
         }
+        .ant-btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+        }
+        .ant-btn-primary:hover, .ant-btn-primary:focus {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.55) !important;
+        }
         .ant-radio-button-wrapper-checked,
         .ant-radio-button-wrapper-checked:first-child,
         .ant-radio-button-wrapper-checked:last-child {
-            background: #ffffff !important;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
             border-color: transparent !important;
-            color: #0b0f17 !important;
+            color: #ffffff !important;
             font-weight: 700 !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
         }
         .ant-radio-button-wrapper-checked:hover {
-            background: #f1f5f9 !important;
-            color: #0b0f17 !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+            color: #ffffff !important;
+        }
+        .proto-filter-chips {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            padding: 5px 14px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .filter-chip:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+        .filter-chip.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+            color: #ffffff !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+            font-weight: 700 !important;
         }
         .ant-modal-confirm .ant-modal-content {
             background: #0f131c !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 14px !important;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.95) !important;
             padding: 24px 28px !important;
         }
-        .ant-modal-confirm-body .ant-modal-confirm-title {
+        .ant-modal-confirm .ant-modal-confirm-title,
+        .ant-modal-confirm-body .ant-modal-confirm-title,
+        .ant-modal-confirm-title {
             color: #ffffff !important;
             font-size: 17px !important;
             font-weight: 700 !important;
             line-height: 1.4 !important;
         }
-        .ant-modal-confirm-body .ant-modal-confirm-content {
-            color: #94a3b8 !important;
+        .ant-modal-confirm .ant-modal-confirm-content,
+        .ant-modal-confirm-body .ant-modal-confirm-content,
+        .ant-modal-confirm-content {
+            color: #cbd5e1 !important;
             font-size: 14px !important;
             line-height: 1.6 !important;
             margin-top: 8px !important;
@@ -133,43 +183,77 @@
             gap: 12px !important;
         }
         .ant-modal-confirm-btns .ant-btn {
-            background: rgba(255, 255, 255, 0.06) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: #e2e8f0 !important;
             border-radius: 8px !important;
             font-weight: 600 !important;
-            height: 36px !important;
+            height: 38px !important;
             padding: 0 18px !important;
             transition: all 0.2s ease !important;
         }
         .ant-modal-confirm-btns .ant-btn:hover {
-            background: rgba(255, 255, 255, 0.12) !important;
+            background: rgba(255, 255, 255, 0.14) !important;
             color: #ffffff !important;
-            border-color: rgba(255, 255, 255, 0.2) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
         }
         .ant-modal-confirm-btns .ant-btn-primary {
-            background: #ffffff !important;
-            border-color: #ffffff !important;
-            color: #0b0f17 !important;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+            border: none !important;
+            color: #ffffff !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
         }
         .ant-modal-confirm-btns .ant-btn-primary:hover {
-            background: #f1f5f9 !important;
-            border-color: #f1f5f9 !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.6) !important;
         }
-        .ant-modal-confirm-btns .ant-btn-danger {
-            background: #ef4444 !important;
-            border-color: #ef4444 !important;
+        .ant-modal-confirm-btns .ant-btn-danger,
+        .ant-modal-confirm-btns .ant-btn-dangerous,
+        .ant-modal-confirm-btns button[class*="danger"] {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            border: none !important;
             color: #ffffff !important;
             font-weight: 700 !important;
-            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.45) !important;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5) !important;
         }
-        .ant-modal-confirm-btns .ant-btn-danger:hover {
-            background: #dc2626 !important;
-            border-color: #dc2626 !important;
+        .ant-modal-confirm-btns .ant-btn-danger:hover,
+        .ant-modal-confirm-btns .ant-btn-dangerous:hover,
+        .ant-modal-confirm-btns button[class*="danger"]:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
             color: #ffffff !important;
-            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.6) !important;
+            box-shadow: 0 6px 18px rgba(239, 68, 68, 0.7) !important;
+        }
+        .ant-switch {
+            background-color: #1e2430 !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            transition: all 0.25s ease !important;
+        }
+        .ant-switch::after {
+            background-color: #94a3b8 !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .ant-switch-checked {
+            background: #10b981 !important;
+            background-image: linear-gradient(135deg, #10b981, #059669) !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.4) !important;
+        }
+        .ant-switch-checked::after {
+            background-color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+        }
+        .ant-switch:focus {
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+        }
+        .ant-switch-inner {
+            color: #cbd5e1 !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+        }
+        .ant-switch-checked .ant-switch-inner {
+            color: #ffffff !important;
         }
     </style>
     <title>{{.title}}</title>

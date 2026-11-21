@@ -114,6 +114,7 @@ jobs:
             sha256sums.txt
           generate_release_notes: true
           draft: false
+          make_latest: "true"
           prerelease: ${{ github.event.inputs.prerelease || false }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -123,14 +123,14 @@ body {
 }
 
 .sider-brand .brand-logo-img {
-    width: 54px;
-    height: 54px;
+    width: 60px;
+    height: 60px;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
     object-fit: contain;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
 }
 
 .sider-brand .brand-info {

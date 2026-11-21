@@ -107,10 +107,12 @@ update() {
             rm -rf /usr/local/aether-vpn/
         fi
         
-        last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') || last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-panel/main/config/version)
-        last_version=$(echo "$last_version" | tr -d ' \r\n')
+        last_version=$(curl -sm8 https://raw.githubusercontent.com/xoxod33p/aether-panel/main/config/version 2>/dev/null | tr -d ' \r\n')
         if [[ -z "$last_version" ]]; then
-            red "Detecting the Aether VPN version failed, please make sure your server can connect to the GitHub API"
+            last_version=$(curl -Ls "https://api.github.com/repos/xoxod33p/aether-panel/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | tr -d ' \r\n')
+        fi
+        if [[ -z "$last_version" ]]; then
+            red "Detecting the Aether VPN version failed, please make sure your server can connect to GitHub"
             exit 1
         fi
         

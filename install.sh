@@ -211,14 +211,49 @@ install_aether_vpn() {
     systemctl start aether-vpn 
     systemctl restart aether-vpn
     
+    local panel_proto="http"
+    local panel_host=""
+
     if [[ -n "$config_domain" ]]; then
-        yellow "Configuring SSL certificate for ${config_domain} via Certbot..."
+        yellow "Requesting SSL certificate for ${config_domain} via Certbot..."
         if [[ -f /usr/local/aether-vpn/certbot.sh ]]; then
             bash /usr/local/aether-vpn/certbot.sh install "$config_domain"
         else
             wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/certbot.sh -O /tmp/certbot.sh
             bash /tmp/certbot.sh install "$config_domain"
             rm -f /tmp/certbot.sh
+        fi
+
+        if [[ -f "/etc/letsencrypt/live/${config_domain}/fullchain.pem" ]]; then
+            echo ""
+            read -rp "SSL certificate is configured for ${config_domain}. Continue with SSL (HTTPS) for the panel? [Y/n]: " continue_ssl
+            [[ -z "$continue_ssl" ]] && continue_ssl="y"
+            if [[ $continue_ssl =~ ^[Yy]$ ]]; then
+                /usr/local/aether-vpn/aether-vpn setting -cert "/etc/letsencrypt/live/${config_domain}/fullchain.pem" -key "/etc/letsencrypt/live/${config_domain}/privkey.pem" >/dev/null 2>&1
+                systemctl restart aether-vpn 2>/dev/null
+                panel_proto="https"
+                panel_host="$config_domain"
+            else
+                /usr/local/aether-vpn/aether-vpn setting -cert "" -key "" >/dev/null 2>&1
+                systemctl restart aether-vpn 2>/dev/null
+                panel_proto="http"
+                yellow "Panel will continue using HTTP without SSL."
+            fi
+        fi
+    else
+        local cert_check=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "^certFile:" | awk '{print $2}')
+        if [[ -n "$cert_check" && -f "$cert_check" ]]; then
+            echo ""
+            read -rp "SSL is currently active on the panel. Continue with SSL (HTTPS)? [Y/n]: " continue_ssl
+            [[ -z "$continue_ssl" ]] && continue_ssl="y"
+            if [[ $continue_ssl =~ ^[Yy]$ ]]; then
+                panel_proto="https"
+            else
+                /usr/local/aether-vpn/aether-vpn setting -cert "" -key "" >/dev/null 2>&1
+                systemctl restart aether-vpn 2>/dev/null
+                panel_proto="http"
+                yellow "Disabled SSL on the panel. Continuing with HTTP."
+            fi
         fi
     fi
     
@@ -247,6 +282,25 @@ install_aether_vpn() {
     echo -e "aether-vpn disable      - Cancel boot self-start"
     echo -e "aether-vpn log          - View logs"
     echo -e "aether-vpn update       - Update panel"
+    echo -e "------------------------------------------------------------------------------"
+    echo -e "ACCESSIBLE PANEL URL: "
+    echo -e "------------------------------------------------------------------------------"
+    if [[ "$panel_proto" == "https" ]]; then
+        if [[ -n "$panel_host" ]]; then
+            echo -e "Panel URL: ${GREEN}https://${panel_host}:${config_port} ${PLAIN}"
+        elif [[ -n $v4 ]]; then
+            echo -e "Panel URL: ${GREEN}https://${v4}:${config_port} ${PLAIN}"
+        fi
+    else
+        if [[ -n $v4 && -z $v6 ]]; then
+            echo -e "Panel URL: ${GREEN}http://${v4}:${config_port} ${PLAIN}"
+        elif [[ -n $v6 && -z $v4 ]]; then
+            echo -e "Panel URL: ${GREEN}http://[${v6}]:${config_port} ${PLAIN}"
+        elif [[ -n $v4 && -n $v6 ]]; then
+            echo -e "Panel IPv4 URL: ${GREEN}http://${v4}:${config_port} ${PLAIN}"
+            echo -e "Panel IPv6 URL: ${GREEN}http://[${v6}]:${config_port} ${PLAIN}"
+        fi
+    fi
     echo -e "------------------------------------------------------------------------------"
     echo -e ""
     yellow "(Run 'aether-vpn' in terminal to manage the panel or configure SSL)"

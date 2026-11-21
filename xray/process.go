@@ -140,8 +140,12 @@ func (p *process) refreshAPIPort() {
 }
 
 func (p *process) refreshVersion() {
-	cmd := exec.Command(GetBinaryPath(), "-version")
+	cmd := exec.Command(GetBinaryPath(), "version")
 	data, err := cmd.Output()
+	if err != nil {
+		cmd = exec.Command(GetBinaryPath(), "-version")
+		data, err = cmd.Output()
+	}
 	if err != nil {
 		p.version = "Unknown"
 	} else {
@@ -175,7 +179,7 @@ func (p *process) Start() (err error) {
 		return common.NewErrorf("failed to write config file: %v", err)
 	}
 
-	cmd := exec.Command(GetBinaryPath(), "-c", configPath)
+	cmd := exec.Command(GetBinaryPath(), "run", "-c", configPath)
 	p.cmd = cmd
 
 	stdReader, err := cmd.StdoutPipe()

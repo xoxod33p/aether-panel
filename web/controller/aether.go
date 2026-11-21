@@ -42,13 +42,13 @@ func (a *AetherController) initRouter(g *gin.RouterGroup) {
 }
 
 func (a *AetherController) index(c *gin.Context) {
-	html(c, "index.html", "Aether VPN - System Status", nil)
+	html(c, "index.html", "System Status", nil)
 }
 
 func (a *AetherController) inbounds(c *gin.Context) {
-	html(c, "inbounds.html", "Aether VPN - Inbounds", nil)
+	html(c, "inbounds.html", "Inbounds", nil)
 }
 
 func (a *AetherController) setting(c *gin.Context) {
-	html(c, "setting.html", "Aether VPN - Panel Settings", nil)
+	html(c, "setting.html", "Panel Settings", nil)
 }

@@ -33,6 +33,9 @@
             }
             this.confirm = confirm;
             this.visible = true;
+            if (window.inboundModalApp) {
+                window.inboundModalApp.onModalShow();
+            }
         },
         close() {
             inModal.visible = false;
@@ -53,13 +56,17 @@
         HTTP: Protocols.HTTP,
     };
 
-    new Vue({
+    window.inboundModalApp = new Vue({
         delimiters: ['[[', ']]'],
         el: '#inbound-modal',
         data: {
             inModal: inModal,
             Protocols: protocols,
             SSMethods: SSMethods,
+            panelSetting: {
+                webCertFile: '',
+                webKeyFile: ''
+            },
             get inbound() {
                 return inModal.inbound;
             },
@@ -67,7 +74,94 @@
                 return inModal.dbInbound;
             }
         },
+        computed: {
+            hasPanelCert() {
+                return !!(this.panelSetting && this.panelSetting.webCertFile && this.panelSetting.webKeyFile);
+            }
+        },
+        mounted() {
+            this.getPanelSetting();
+        },
+        watch: {
+            'inModal.inbound.tls': function(val) {
+                if (val) {
+                    this.applyPanelCert(false);
+                }
+            },
+            'inModal.inbound.xtls': function(val) {
+                if (val) {
+                    this.applyPanelCert(false);
+                }
+            }
+        },
         methods: {
+            async getPanelSetting() {
+                try {
+                    const msg = await HttpUtil.post('/aether/setting/all');
+                    if (msg && msg.success && msg.obj) {
+                        this.panelSetting = msg.obj;
+                        if (this.inModal.visible && (this.inbound.tls || this.inbound.xtls)) {
+                            this.applyPanelCert(false);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to get panel setting', e);
+                }
+            },
+            applyPanelCert(force = false) {
+                if (!this.hasPanelCert) return;
+                const inbound = this.inModal.inbound;
+                if (!inbound || !inbound.stream) return;
+                if (!inbound.stream.tls) {
+                    inbound.stream.tls = new TlsStreamSettings();
+                }
+                if (!inbound.stream.tls.certs || inbound.stream.tls.certs.length === 0) {
+                    inbound.stream.tls.certs = [new TlsStreamSettings.Cert()];
+                }
+                const cert = inbound.stream.tls.certs[0];
+                let changed = false;
+                if (force || !cert.certFile) {
+                    cert.certFile = this.panelSetting.webCertFile;
+                    cert.useFile = true;
+                    changed = true;
+                }
+                if (force || !cert.keyFile) {
+                    cert.keyFile = this.panelSetting.webKeyFile;
+                    cert.useFile = true;
+                    changed = true;
+                }
+                if (force || !inbound.stream.tls.server) {
+                    const match = this.panelSetting.webCertFile.match(/\/live\/([^/]+)\//);
+                    if (match && match[1]) {
+                        inbound.stream.tls.server = match[1];
+                        changed = true;
+                    } else if (location.hostname && !location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/) && location.hostname !== 'localhost') {
+                        inbound.stream.tls.server = location.hostname;
+                        changed = true;
+                    }
+                }
+                if (force && changed && this.$message) {
+                    this.$message.success('Auto-filled SSL paths from panel certificate');
+                }
+            },
+            onTlsChange(val) {
+                if (val) {
+                    this.applyPanelCert(false);
+                }
+            },
+            onModalShow() {
+                if (!this.hasPanelCert) {
+                    this.getPanelSetting().then(() => {
+                        if (this.inbound && (this.inbound.tls || this.inbound.xtls)) {
+                            this.applyPanelCert(false);
+                        }
+                    });
+                } else {
+                    if (this.inbound && (this.inbound.tls || this.inbound.xtls)) {
+                        this.applyPanelCert(false);
+                    }
+                }
+            },
             streamNetworkChange(oldValue) {
                 if (oldValue === 'kcp') {
                     this.inModal.inbound.tls = false;

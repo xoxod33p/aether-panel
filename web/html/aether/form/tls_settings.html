@@ -2,19 +2,22 @@
 <!-- tls enable -->
 <a-form layout="inline" v-if="inbound.canSetTls()">
     <a-form-item label="TLS">
-        <a-switch v-model="inbound.tls">
+        <a-switch v-model="inbound.tls" @change="onTlsChange">
         </a-switch>
     </a-form-item>
     <a-form-item v-if="inbound.canEnableXTls()" label="XTLS">
-        <a-switch v-model="inbound.xtls"></a-switch>
+        <a-switch v-model="inbound.xtls" @change="onTlsChange"></a-switch>
     </a-form-item>
+    <a-tag v-if="hasPanelCert" color="cyan" style="margin-top: 4px; border-radius: 4px; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3); color: #00f2fe; cursor: pointer;" @click="applyPanelCert(true)">
+        <a-icon type="safety-certificate" /> Panel SSL Active (Auto-linked)
+    </a-tag>
 </a-form>
 
 <!-- tls settings -->
 <a-form v-if="inbound.tls || inbound.xtls"
         layout="inline">
     <a-form-item label="Domain (SNI)">
-        <a-input v-model.trim="inbound.stream.tls.server" placeholder="example.com"></a-input>
+        <a-input v-model.trim="inbound.stream.tls.server"></a-input>
     </a-form-item>
     <a-form-item label="Certificate Mode">
         <a-radio-group v-model="inbound.stream.tls.certs[0].useFile"
@@ -22,13 +25,16 @@
             <a-radio-button :value="true">File Path</a-radio-button>
             <a-radio-button :value="false">File Content</a-radio-button>
         </a-radio-group>
+        <a-button v-if="hasPanelCert" size="small" type="link" @click="applyPanelCert(true)" style="margin-left: 8px; color: #00f2fe; padding: 0;">
+            <a-icon type="sync" /> Sync Panel SSL
+        </a-button>
     </a-form-item>
     <template v-if="inbound.stream.tls.certs[0].useFile">
         <a-form-item label="Certificate Path">
-            <a-input v-model.trim="inbound.stream.tls.certs[0].certFile" placeholder="/path/to/fullchain.cer"></a-input>
+            <a-input v-model.trim="inbound.stream.tls.certs[0].certFile"></a-input>
         </a-form-item>
         <a-form-item label="Private Key Path">
-            <a-input v-model.trim="inbound.stream.tls.certs[0].keyFile" placeholder="/path/to/private.key"></a-input>
+            <a-input v-model.trim="inbound.stream.tls.certs[0].keyFile"></a-input>
         </a-form-item>
     </template>
     <template v-else>

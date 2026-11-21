@@ -57,8 +57,9 @@
     }
 
     .logo-container {
-        width: 110px;
-        height: 110px;
+        width: 220px !important;
+        max-width: 85% !important;
+        height: auto !important;
         background: transparent !important;
         border: none !important;
         padding: 0 !important;
@@ -66,14 +67,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 16px;
+        margin: 0 auto 18px !important;
     }
 
     .logo-container img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        filter: drop-shadow(0 8px 28px rgba(0, 242, 254, 0.3));
+        width: 100% !important;
+        height: auto !important;
+        max-height: 120px !important;
+        object-fit: contain !important;
+        filter: drop-shadow(0 6px 24px rgba(168, 85, 247, 0.4)) !important;
     }
 
     .login-header h1 {
@@ -185,10 +187,9 @@
         <div class="glow-orb"></div>
         <div class="login-header">
             <div class="logo-container">
-                <img src="{{ .base_path }}assets/images/icon.png" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/favicon.svg';">
+                <img src="{{ .base_path }}assets/images/logo.png" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/icon.png';">
             </div>
-            <h1>Aether Server Manager</h1>
-            <p>Authenticate to manage Aether VPN configurations</p>
+            <p>Admin Authentication Center</p>
         </div>
         <form @submit.prevent="login">
             <div class="form-group">

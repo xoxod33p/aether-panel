@@ -292,8 +292,11 @@
 
                                 <!-- Action Buttons Row -->
                                 <div class="inbound-actions-row">
+                                    <a-button icon="team" @click="location.href='{{ .base_path }}aether/clients'">
+                                        Clients
+                                    </a-button>
                                     <a-button v-if="dbInbound.hasLink()" icon="share-alt" @click="copyShareLink(dbInbound)">
-                                        Copy Link
+                                        Link
                                     </a-button>
                                     <a-button v-if="dbInbound.hasLink()" icon="qrcode" @click="showQrcode(dbInbound)">
                                         QR

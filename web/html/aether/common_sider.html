@@ -26,11 +26,9 @@
 <a-layout-sider id="sider" width="250" breakpoint="md" collapsed-width="0">
     <div class="sider-container">
         <div class="sider-brand">
-            <img src="{{ .base_path }}assets/images/icon.png" class="brand-logo-img" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/favicon.svg';">
-            <div class="brand-info">
-                <span class="brand-title">Aether VPN</span>
-                <span class="brand-badge">PANEL</span>
-            </div>
+            <a href="{{ .base_path }}aether/" style="display: flex; justify-content: center; width: 100%;">
+                <img src="{{ .base_path }}assets/images/logo.png" class="brand-logo-img" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/icon.png';">
+            </a>
         </div>
         <a-menu theme="dark" mode="inline" :selected-keys="['{{ .request_uri }}']"
                 @click="({key}) => key.startsWith('http') ? window.open(key) : location.href = key">

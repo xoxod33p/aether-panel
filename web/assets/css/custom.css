@@ -115,44 +115,30 @@ body {
 }
 
 .sider-brand {
-    padding: 18px 20px 18px;
+    padding: 24px 20px 20px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
     border-bottom: 1px solid var(--border-subtle);
+    background: transparent !important;
 }
 
 .sider-brand .brand-logo-img {
-    width: 60px;
-    height: 60px;
+    width: 175px !important;
+    max-width: 90% !important;
+    height: auto !important;
+    max-height: 95px !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.6));
+    object-fit: contain !important;
+    filter: drop-shadow(0 4px 18px rgba(168, 85, 247, 0.35)) !important;
+    transition: transform 0.25s ease !important;
 }
 
-.sider-brand .brand-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.sider-brand .brand-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #ffffff;
-    letter-spacing: -0.4px;
-    line-height: 1.2;
-}
-
-.sider-brand .brand-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    color: var(--accent-cyan);
-    text-transform: uppercase;
-    margin-top: 3px;
+.sider-brand .brand-logo-img:hover {
+    transform: scale(1.03);
 }
 
 /* Sider Navigation Menu */

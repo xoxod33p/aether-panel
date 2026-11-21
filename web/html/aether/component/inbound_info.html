@@ -1,78 +1,129 @@
 {{define "inboundInfoStream"}}
-<p>Transport: <a-tag color="green">[[ inbound.network ]]</a-tag></p>
+<div class="info-detail-row">
+    <span class="info-detail-label">Network Transport:</span>
+    <span class="info-detail-val">[[ inbound.network ]]</span>
+</div>
 
 <template v-if="inbound.isTcp || inbound.isWs || inbound.isH2">
-    <p v-if="inbound.host">Host: <a-tag color="green">[[ inbound.host ]]</a-tag></p>
-    <p v-else>Host: <a-tag color="orange">None</a-tag></p>
-
-    <p v-if="inbound.path">Path: <a-tag color="green">[[ inbound.path ]]</a-tag></p>
-    <p v-else>Path: <a-tag color="orange">None</a-tag></p>
+    <div class="info-detail-row" v-if="inbound.host">
+        <span class="info-detail-label">Host / SNI:</span>
+        <span class="info-detail-val">[[ inbound.host ]]</span>
+    </div>
+    <div class="info-detail-row" v-if="inbound.path">
+        <span class="info-detail-label">Path:</span>
+        <span class="info-detail-val font-mono">[[ inbound.path ]]</span>
+    </div>
 </template>
 
 <template v-if="inbound.isQuic">
-    <p>QUIC Security: <a-tag color="green">[[ inbound.quicSecurity ]]</a-tag></p>
-    <p>QUIC Key: <a-tag color="green">[[ inbound.quicKey ]]</a-tag></p>
-    <p>QUIC Header: <a-tag color="green">[[ inbound.quicType ]]</a-tag></p>
+    <div class="info-detail-row">
+        <span class="info-detail-label">QUIC Security:</span>
+        <span class="info-detail-val">[[ inbound.quicSecurity ]]</span>
+    </div>
+    <div class="info-detail-row">
+        <span class="info-detail-label">QUIC Header:</span>
+        <span class="info-detail-val">[[ inbound.quicType ]]</span>
+    </div>
 </template>
 
 <template v-if="inbound.isKcp">
-    <p>mKCP Header: <a-tag color="green">[[ inbound.kcpType ]]</a-tag></p>
-    <p>mKCP Seed: <a-tag color="green">[[ inbound.kcpSeed ]]</a-tag></p>
+    <div class="info-detail-row">
+        <span class="info-detail-label">mKCP Header:</span>
+        <span class="info-detail-val">[[ inbound.kcpType ]]</span>
+    </div>
+    <div class="info-detail-row">
+        <span class="info-detail-label">mKCP Seed:</span>
+        <span class="info-detail-val font-mono">[[ inbound.kcpSeed ]]</span>
+    </div>
 </template>
 
 <template v-if="inbound.isGrpc">
-    <p>gRPC Service Name: <a-tag color="green">[[ inbound.serviceName ]]</a-tag></p>
+    <div class="info-detail-row">
+        <span class="info-detail-label">gRPC Service:</span>
+        <span class="info-detail-val">[[ inbound.serviceName ]]</span>
+    </div>
 </template>
 
-<template v-if="inbound.tls || inbound.xtls">
-    <p v-if="inbound.tls">TLS: <a-tag color="green">Enabled</a-tag></p>
-    <p v-if="inbound.xtls">XTLS: <a-tag color="green">Enabled</a-tag></p>
-</template>
-<template v-else>
-    <p>TLS: <a-tag color="red">Disabled</a-tag></p>
-</template>
-<p v-if="inbound.tls">
-    TLS Domain (SNI): <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : "None" ]]</a-tag>
-</p>
-<p v-if="inbound.xtls">
-    XTLS Domain (SNI): <a-tag :color="inbound.serverName ? 'green' : 'orange'">[[ inbound.serverName ? inbound.serverName : "None" ]]</a-tag>
-</p>
+<div class="info-detail-row">
+    <span class="info-detail-label">TLS Security:</span>
+    <span class="info-detail-val" :style="{ color: (inbound.tls || inbound.xtls) ? '#10b981' : '#94a3b8' }">
+        [[ inbound.tls ? 'TLS Enabled' : (inbound.xtls ? 'XTLS Enabled' : 'Disabled') ]]
+    </span>
+</div>
+
+<div class="info-detail-row" v-if="inbound.serverName">
+    <span class="info-detail-label">SNI Domain:</span>
+    <span class="info-detail-val font-mono">[[ inbound.serverName ]]</span>
+</div>
 {{end}}
 
 
 {{define "component/inboundInfoComponent"}}
-<div>
-    <p>Protocol: <a-tag color="green">[[ dbInbound.protocol.toUpperCase() ]]</a-tag></p>
-    <p>Address: <a-tag color="blue">[[ dbInbound.address ]]</a-tag></p>
-    <p>Port: <a-tag color="green">[[ dbInbound.port ]]</a-tag></p>
+<div class="info-detail-container">
+    <div class="info-detail-row">
+        <span class="info-detail-label">Protocol:</span>
+        <span class="info-detail-val" style="color: var(--accent-cyan); font-weight: 700;">
+            [[ dbInbound.protocol.toUpperCase() ]]
+        </span>
+    </div>
+    <div class="info-detail-row">
+        <span class="info-detail-label">Server Address:</span>
+        <span class="info-detail-val font-mono">[[ dbInbound.address ]]</span>
+    </div>
+    <div class="info-detail-row">
+        <span class="info-detail-label">Port:</span>
+        <span class="info-detail-val font-mono">[[ dbInbound.port ]]</span>
+    </div>
 
     <template v-if="dbInbound.isVMess">
-        <p>UUID: <a-tag color="green">[[ inbound.uuid ]]</a-tag></p>
-        <p>Alter ID: <a-tag color="green">[[ inbound.alterId ]]</a-tag></p>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Client UUID:</span>
+            <span class="info-detail-val font-mono">[[ inbound.uuid ]]</span>
+        </div>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Alter ID:</span>
+            <span class="info-detail-val font-mono">[[ inbound.alterId ]]</span>
+        </div>
     </template>
 
     <template v-if="dbInbound.isVLess">
-        <p>UUID: <a-tag color="green">[[ inbound.uuid ]]</a-tag></p>
-        <p v-if="inbound.isXTls">Flow: <a-tag color="green">[[ inbound.flow ]]</a-tag></p>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Client UUID:</span>
+            <span class="info-detail-val font-mono">[[ inbound.uuid ]]</span>
+        </div>
+        <div class="info-detail-row" v-if="inbound.isXTls">
+            <span class="info-detail-label">Flow:</span>
+            <span class="info-detail-val font-mono">[[ inbound.flow ]]</span>
+        </div>
     </template>
 
     <template v-if="dbInbound.isTrojan">
-        <p>Password: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Password:</span>
+            <span class="info-detail-val font-mono">[[ inbound.password ]]</span>
+        </div>
     </template>
 
     <template v-if="dbInbound.isSS">
-        <p>Cipher: <a-tag color="green">[[ inbound.method ]]</a-tag></p>
-        <p>Password: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Cipher Method:</span>
+            <span class="info-detail-val">[[ inbound.method ]]</span>
+        </div>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Password:</span>
+            <span class="info-detail-val font-mono">[[ inbound.password ]]</span>
+        </div>
     </template>
 
-    <template v-if="dbInbound.isSocks">
-        <p>Username: <a-tag color="green">[[ inbound.username ]]</a-tag></p>
-        <p>Password: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
-    </template>
-
-    <template v-if="dbInbound.isHTTP">
-        <p>Username: <a-tag color="green">[[ inbound.username ]]</a-tag></p>
-        <p>Password: <a-tag color="green">[[ inbound.password ]]</a-tag></p>
+    <template v-if="dbInbound.isSocks || dbInbound.isHTTP">
+        <div class="info-detail-row">
+            <span class="info-detail-label">Username:</span>
+            <span class="info-detail-val font-mono">[[ inbound.username ]]</span>
+        </div>
+        <div class="info-detail-row">
+            <span class="info-detail-label">Password:</span>
+            <span class="info-detail-val font-mono">[[ inbound.password ]]</span>
+        </div>
     </template>
 
     <template v-if="dbInbound.isVMess || dbInbound.isVLess || dbInbound.isTrojan || dbInbound.isSS">

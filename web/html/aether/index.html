@@ -2,196 +2,307 @@
 <html lang="en">
 {{template "head" .}}
 <style>
-    @media (min-width: 769px) {
-        .ant-layout-content {
-            margin: 24px 16px;
-        }
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
     }
 
-    .ant-col-sm-24 {
-        margin-top: 10px;
+    .hero-status-bar {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: var(--shadow-card);
     }
 
-    .progress-label {
-        margin-top: 10px;
-        font-weight: 600;
+    .hero-status-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .core-state-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 9999px;
         font-size: 13px;
-        color: var(--text-muted);
+        font-weight: 700;
+        letter-spacing: 0.5px;
     }
 
-    .metric-badge {
-        font-weight: 600;
-        font-size: 14px;
-        color: #ffffff;
+    .core-state-running {
+        background: rgba(16, 185, 129, 0.12);
+        color: var(--accent-emerald);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .core-state-error {
+        background: rgba(239, 68, 68, 0.12);
+        color: var(--accent-red);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .core-state-stop {
+        background: rgba(100, 116, 139, 0.12);
+        color: var(--text-dim);
+        border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+
+    .telemetry-val {
         font-family: 'JetBrains Mono', monospace;
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1;
+        margin-top: 10px;
+    }
+
+    .net-stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        box-shadow: var(--shadow-card);
+        transition: all 0.25s ease;
+    }
+
+    .net-stat-card:hover {
+        border-color: var(--border-strong);
+        transform: translateY(-2px);
     }
 </style>
 <body>
 <a-layout id="app" v-cloak>
     {{ template "commonSider" . }}
     <a-layout id="content-layout">
+        {{ template "commonHeader" . }}
         <a-layout-content>
-            <a-spin :spinning="spinning" :delay="200" :tip="loadingTip"/>
-            <transition name="list" appear>
-                <a-row>
-                    <a-card hoverable>
-                        <a-row :gutter="[16, 16]">
-                            <a-col :sm="24" :md="12">
-                                <a-row>
-                                    <a-col :span="12" style="text-align: center">
-                                        <a-progress type="dashboard" status="normal"
-                                                    stroke-color="#ffffff"
-                                                    :percent="status.cpu.percent"></a-progress>
-                                        <div class="progress-label">CPU</div>
-                                    </a-col>
-                                    <a-col :span="12" style="text-align: center">
-                                        <a-progress type="dashboard" status="normal"
-                                                    stroke-color="#ffffff"
-                                                    :percent="status.mem.percent"></a-progress>
-                                        <div class="progress-label">
-                                            RAM: [[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]
-                                        </div>
-                                    </a-col>
-                                </a-row>
-                            </a-col>
-                            <a-col :sm="24" :md="12">
-                                <a-row>
-                                    <a-col :span="12" style="text-align: center">
-                                        <a-progress type="dashboard" status="normal"
-                                                    stroke-color="#ffffff"
-                                                    :percent="status.swap.percent"></a-progress>
-                                        <div class="progress-label">
-                                            Swap: [[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]
-                                        </div>
-                                    </a-col>
-                                    <a-col :span="12" style="text-align: center">
-                                        <a-progress type="dashboard" status="normal"
-                                                    stroke-color="#ffffff"
-                                                    :percent="status.disk.percent"></a-progress>
-                                        <div class="progress-label">
-                                            Disk: [[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]
-                                        </div>
-                                    </a-col>
-                                </a-row>
-                            </a-col>
-                        </a-row>
-                    </a-card>
-                </a-row>
-            </transition>
-            <transition name="list" appear>
-                <a-row :gutter="[16, 16]" style="margin-top: 16px;">
-                    <a-col :sm="24" :md="12">
-                        <a-card hoverable>
-                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">Xray Core: </span>
-                            <a-tag>[[ status.xray.state.toUpperCase() ]]</a-tag>
+            <div class="dashboard-container">
+                <a-spin :spinning="spinning" :delay="200" :tip="loadingTip"/>
+
+                <!-- Hero Status Strip -->
+                <transition name="list" appear>
+                    <div class="hero-status-bar">
+                        <div class="hero-status-left">
+                            <div class="core-state-badge" :class="'core-state-' + status.xray.state">
+                                <span class="status-dot-pulse" :style="{ background: status.xray.state === State.Running ? '#10b981' : '#ef4444' }"></span>
+                                <span>XRAY CORE: [[ status.xray.state.toUpperCase() ]]</span>
+                            </div>
+
                             <a-tooltip v-if="status.xray.state === State.Error">
                                 <template slot="title">
                                     <p v-for="line in status.xray.errorMsg.split('\n')">[[ line ]]</p>
                                 </template>
-                                <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
+                                <a-icon type="warning" theme="filled" style="color: #ef4444; font-size: 16px;"></a-icon>
                             </a-tooltip>
-                            <a-tag @click="openSelectV2rayVersion" style="cursor: pointer;">[[ status.xray.version ]]</a-tag>
-                            <a-tag @click="openSelectV2rayVersion" style="cursor: pointer; background: #ffffff !important; color: #000000 !important;">Switch Version</a-tag>
-                        </a-card>
-                    </a-col>
-                    <a-col :sm="24" :md="12">
-                        <a-card hoverable>
-                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">Uptime: </span>
-                            <a-tag>[[ formatSecond(status.uptime) ]]</a-tag>
-                            <a-tooltip>
-                                <template slot="title">
-                                    Uptime since last system boot
-                                </template>
-                                <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
-                            </a-tooltip>
-                        </a-card>
-                    </a-col>
-                    <a-col :sm="24" :md="12">
-                        <a-card hoverable>
-                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">System Load: </span>
-                            <span class="metric-badge">[[ status.loads[0] ]] | [[ status.loads[1] ]] | [[ status.loads[2] ]]</span>
-                        </a-card>
-                    </a-col>
-                    <a-col :sm="24" :md="12">
-                        <a-card hoverable>
-                            <span class="status-metric-title" style="color: var(--text-muted); font-size: 13px;">TCP / UDP Connections: </span>
-                            <span class="metric-badge">[[ status.tcpCount ]] / [[ status.udpCount ]]</span>
-                            <a-tooltip>
-                                <template slot="title">
-                                    Total active connections across all interfaces
-                                </template>
-                                <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
-                            </a-tooltip>
-                        </a-card>
-                    </a-col>
-                    <a-col :sm="24" :md="12">
-                        <a-card hoverable>
-                            <a-row>
-                                <a-col :span="12">
-                                    <a-icon type="arrow-up" style="color: #ffffff; margin-right: 6px;"></a-icon>
-                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netIO.up) ]] / s</span>
-                                    <a-tooltip>
-                                        <template slot="title">
-                                            Current upload throughput
-                                        </template>
-                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
-                                    </a-tooltip>
-                                </a-col>
-                                <a-col :span="12">
-                                    <a-icon type="arrow-down" style="color: #a3a3a3; margin-right: 6px;"></a-icon>
-                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netIO.down) ]] / s</span>
-                                    <a-tooltip>
-                                        <template slot="title">
-                                            Current download throughput
-                                        </template>
-                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
-                                    </a-tooltip>
-                                </a-col>
-                            </a-row>
-                        </a-card>
-                    </a-col>
-                    <a-col :sm="24" :md="12">
-                        <a-card hoverable>
-                            <a-row>
-                                <a-col :span="12">
-                                    <a-icon type="cloud-upload" style="color: #ffffff; margin-right: 6px;"></a-icon>
-                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netTraffic.sent) ]]</span>
-                                    <a-tooltip>
-                                        <template slot="title">
-                                            Total uploaded data since system boot
-                                        </template>
-                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
-                                    </a-tooltip>
-                                </a-col>
-                                <a-col :span="12">
-                                    <a-icon type="cloud-download" style="color: #a3a3a3; margin-right: 6px;"></a-icon>
-                                    <span style="font-weight: 600; font-family: monospace;">[[ sizeFormat(status.netTraffic.recv) ]]</span>
-                                    <a-tooltip>
-                                        <template slot="title">
-                                            Total downloaded data since system boot
-                                        </template>
-                                        <a-icon type="question-circle" theme="filled" style="color: #ffffff;"></a-icon>
-                                    </a-tooltip>
-                                </a-col>
-                            </a-row>
-                        </a-card>
-                    </a-col>
-                </a-row>
-            </transition>
+
+                            <a-tag style="cursor: pointer; font-family: 'JetBrains Mono', monospace; padding: 4px 10px;" @click="openSelectV2rayVersion">
+                                <a-icon type="branches" style="margin-right: 4px;"></a-icon> [[ status.xray.version || 'v2ray' ]]
+                            </a-tag>
+
+                            <a-button size="small" style="background: #ffffff; color: #000000; font-weight: 700; border-radius: 6px;" @click="openSelectV2rayVersion">
+                                Switch Core
+                            </a-button>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                            <div style="font-size: 13px; color: var(--text-muted);">
+                                <a-icon type="dashboard" style="margin-right: 6px;"></a-icon>
+                                <span>Load: </span>
+                                <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff; font-weight: 600;">
+                                    [[ status.loads[0] ]] | [[ status.loads[1] ]] | [[ status.loads[2] ]]
+                                </span>
+                            </div>
+
+                            <div style="font-size: 13px; color: var(--text-muted);">
+                                <a-icon type="hourglass" style="margin-right: 6px;"></a-icon>
+                                <span>Uptime: </span>
+                                <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff; font-weight: 600;">
+                                    [[ formatSecond(status.uptime) ]]
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </transition>
+
+                <!-- 4 Hero Resource Telemetry Cards -->
+                <transition name="list" appear>
+                    <a-row :gutter="[20, 20]" style="margin-bottom: 24px;">
+                        <!-- CPU -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="telemetry-card">
+                                <div class="telemetry-header">
+                                    <span class="telemetry-title">
+                                        <a-icon type="thunderbolt" style="color: var(--accent-cyan);"></a-icon> CPU Usage
+                                    </span>
+                                    <span class="telemetry-badge">[[ status.cpu.percent.toFixed(1) ]]%</span>
+                                </div>
+                                <div style="text-align: center; margin: 12px 0;">
+                                    <a-progress type="dashboard" :width="130" status="normal" stroke-color="#ffffff"
+                                                :percent="status.cpu.percent" :format="() => status.cpu.percent.toFixed(1) + '%'"></a-progress>
+                                </div>
+                                <div class="telemetry-stat-label">Active Processor Load</div>
+                                <div class="telemetry-sub-label">Normalized across all cores</div>
+                            </div>
+                        </a-col>
+
+                        <!-- RAM -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="telemetry-card">
+                                <div class="telemetry-header">
+                                    <span class="telemetry-title">
+                                        <a-icon type="appstore" style="color: var(--accent-emerald);"></a-icon> Memory (RAM)
+                                    </span>
+                                    <span class="telemetry-badge">[[ status.mem.percent.toFixed(1) ]]%</span>
+                                </div>
+                                <div style="text-align: center; margin: 12px 0;">
+                                    <a-progress type="dashboard" :width="130" status="normal" stroke-color="#ffffff"
+                                                :percent="status.mem.percent" :format="() => status.mem.percent.toFixed(1) + '%'"></a-progress>
+                                </div>
+                                <div class="telemetry-stat-label">[[ sizeFormat(status.mem.current) ]] / [[ sizeFormat(status.mem.total) ]]</div>
+                                <div class="telemetry-sub-label">Physical System RAM</div>
+                            </div>
+                        </a-col>
+
+                        <!-- Swap -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="telemetry-card">
+                                <div class="telemetry-header">
+                                    <span class="telemetry-title">
+                                        <a-icon type="swap" style="color: var(--accent-purple);"></a-icon> Virtual Swap
+                                    </span>
+                                    <span class="telemetry-badge">[[ status.swap.percent.toFixed(1) ]]%</span>
+                                </div>
+                                <div style="text-align: center; margin: 12px 0;">
+                                    <a-progress type="dashboard" :width="130" status="normal" stroke-color="#ffffff"
+                                                :percent="status.swap.percent" :format="() => status.swap.percent.toFixed(1) + '%'"></a-progress>
+                                </div>
+                                <div class="telemetry-stat-label">[[ sizeFormat(status.swap.current) ]] / [[ sizeFormat(status.swap.total) ]]</div>
+                                <div class="telemetry-sub-label">Secondary Paging File</div>
+                            </div>
+                        </a-col>
+
+                        <!-- Disk -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="telemetry-card">
+                                <div class="telemetry-header">
+                                    <span class="telemetry-title">
+                                        <a-icon type="hdd" style="color: var(--accent-amber);"></a-icon> Storage Disk
+                                    </span>
+                                    <span class="telemetry-badge">[[ status.disk.percent.toFixed(1) ]]%</span>
+                                </div>
+                                <div style="text-align: center; margin: 12px 0;">
+                                    <a-progress type="dashboard" :width="130" status="normal" stroke-color="#ffffff"
+                                                :percent="status.disk.percent" :format="() => status.disk.percent.toFixed(1) + '%'"></a-progress>
+                                </div>
+                                <div class="telemetry-stat-label">[[ sizeFormat(status.disk.current) ]] / [[ sizeFormat(status.disk.total) ]]</div>
+                                <div class="telemetry-sub-label">Primary Root Filesystem</div>
+                            </div>
+                        </a-col>
+                    </a-row>
+                </transition>
+
+                <!-- Network Telemetry & Socket Metrics -->
+                <transition name="list" appear>
+                    <a-row :gutter="[20, 20]">
+                        <!-- Upload Real-time -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="net-stat-card">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                        <a-icon type="arrow-up" style="color: var(--accent-cyan); margin-right: 6px;"></a-icon> Upload Rate
+                                    </span>
+                                    <a-tag style="background: rgba(6, 182, 212, 0.1) !important; color: var(--accent-cyan) !important;">Live</a-tag>
+                                </div>
+                                <div class="telemetry-val">[[ sizeFormat(status.netIO.up) ]] / s</div>
+                                <div style="font-size: 12px; color: var(--text-dim); margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+                                    Sent: [[ sizeFormat(status.netTraffic.sent) ]]
+                                </div>
+                            </div>
+                        </a-col>
+
+                        <!-- Download Real-time -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="net-stat-card">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                        <a-icon type="arrow-down" style="color: var(--accent-emerald); margin-right: 6px;"></a-icon> Download Rate
+                                    </span>
+                                    <a-tag style="background: rgba(16, 185, 129, 0.1) !important; color: var(--accent-emerald) !important;">Live</a-tag>
+                                </div>
+                                <div class="telemetry-val">[[ sizeFormat(status.netIO.down) ]] / s</div>
+                                <div style="font-size: 12px; color: var(--text-dim); margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+                                    Recv: [[ sizeFormat(status.netTraffic.recv) ]]
+                                </div>
+                            </div>
+                        </a-col>
+
+                        <!-- Socket Connections -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="net-stat-card">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                        <a-icon type="api" style="color: var(--accent-purple); margin-right: 6px;"></a-icon> Active Sockets
+                                    </span>
+                                    <a-tag>Network</a-tag>
+                                </div>
+                                <div class="telemetry-val">[[ status.tcpCount + status.udpCount ]]</div>
+                                <div style="font-size: 12px; color: var(--text-dim); margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+                                    TCP: [[ status.tcpCount ]] &bull; UDP: [[ status.udpCount ]]
+                                </div>
+                            </div>
+                        </a-col>
+
+                        <!-- Lifetime Traffic -->
+                        <a-col :xs="24" :sm="12" :lg="6">
+                            <div class="net-stat-card">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                        <a-icon type="global" style="color: var(--accent-amber); margin-right: 6px;"></a-icon> Total Traffic
+                                    </span>
+                                    <a-tag>Session</a-tag>
+                                </div>
+                                <div class="telemetry-val">[[ sizeFormat(status.netTraffic.sent + status.netTraffic.recv) ]]</div>
+                                <div style="font-size: 12px; color: var(--text-dim); margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+                                    Aggregated I/O since boot
+                                </div>
+                            </div>
+                        </a-col>
+                    </a-row>
+                </transition>
+            </div>
         </a-layout-content>
     </a-layout>
-    <a-modal id="version-modal" v-model="versionModal.visible" title="Switch Version"
+
+    <!-- Version Switcher Modal -->
+    <a-modal id="version-modal" v-model="versionModal.visible" title="Switch Xray Core Version"
              :closable="true" @ok="() => versionModal.visible = false"
-             ok-text="Confirm" cancel-text="Cancel">
-        <h3 style="color: #ffffff;">Select the version to switch to:</h3>
-        <p style="color: #a3a3a3; font-size: 13px;">Please select carefully; older versions may have configuration incompatibilities.</p>
-        <template v-for="version, index in versionModal.versions">
-            <a-tag style="margin: 6px; cursor: pointer;" @click="switchV2rayVersion(version)">
-                [[ version ]]
-            </a-tag>
-        </template>
+             ok-text="Done" cancel-text="Cancel" width="540px">
+        <div style="margin-bottom: 16px;">
+            <p style="color: var(--text-muted); font-size: 13px; margin: 0;">
+                Select a target core release below. Downgrading or upgrading takes effect immediately.
+            </p>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 280px; overflow-y: auto; padding: 4px;">
+            <template v-for="version in versionModal.versions">
+                <a-tag style="margin: 0; padding: 6px 14px; font-family: 'JetBrains Mono', monospace; cursor: pointer; font-size: 13px;"
+                       @click="switchV2rayVersion(version)">
+                    [[ version ]]
+                </a-tag>
+            </template>
+        </div>
     </a-modal>
 </a-layout>
+
 {{template "js" .}}
 <script>
     const State = {
@@ -266,14 +377,13 @@
         delimiters: ['[[', ']]'],
         el: '#app',
         data: {
-            siderDrawer,
             status: new Status(),
             versionModal,
             spinning: false,
-            loadingTip: 'Loading...',
+            loadingTip: 'Loading telemetry...',
         },
         methods: {
-            loading(spinning, tip = 'Loading...') {
+            loading(spinning, tip = 'Loading telemetry...') {
                 this.spinning = spinning;
                 this.loadingTip = tip;
             },
@@ -297,13 +407,13 @@
             },
             switchV2rayVersion(version) {
                 this.$confirm({
-                    title: 'Switch Xray Version',
-                    content: 'Are you sure you want to switch Xray version to ' + `${version}?`,
-                    okText: 'Confirm',
+                    title: 'Switch Xray Core Version',
+                    content: 'Switch system Xray core binary to ' + `${version}?`,
+                    okText: 'Confirm Switch',
                     cancelText: 'Cancel',
                     onOk: async () => {
                         versionModal.hide();
-                        this.loading(true, 'Installing, please do not refresh this page...');
+                        this.loading(true, 'Updating Xray core binary...');
                         await HttpUtil.post(`/server/installXray/${version}`);
                         this.loading(false);
                     },

@@ -2,92 +2,164 @@
 <html lang="en">
 {{template "head" .}}
 <style>
-    @media (min-width: 769px) {
-        .ant-layout-content {
-            margin: 24px 16px;
-        }
+    .settings-container {
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .ant-col-sm-24 {
-        margin-top: 10px;
-    }
-
-    .ant-tabs-bar {
-        margin: 0 0 16px 0;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .ant-list-item {
-        display: block;
-        padding: 20px !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-    }
-
-    .settings-panel {
-        background: var(--surface) !important;
+    .settings-action-bar {
+        background: var(--bg-card);
         border: 1px solid var(--border-subtle);
         border-radius: var(--radius-lg);
+        padding: 16px 24px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        box-shadow: var(--shadow-card);
+    }
+
+    .settings-main-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
         overflow: hidden;
+    }
+
+    .guide-box {
+        background: var(--bg-surface-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        margin: 16px 20px;
+    }
+
+    .guide-code {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        padding: 12px 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: var(--accent-cyan);
+        margin: 10px 0;
+        display: block;
+        user-select: all;
     }
 </style>
 <body>
 <a-layout id="app" v-cloak>
     {{ template "commonSider" . }}
     <a-layout id="content-layout">
+        {{ template "commonHeader" . }}
         <a-layout-content>
-            <a-spin :spinning="spinning" :delay="500" tip="Loading...">
-                <a-space direction="vertical" size="large">
-                    <a-space direction="horizontal" style="margin-bottom: 4px;">
-                        <a-button type="primary" :disabled="saveBtnDisable" @click="updateAllSetting" icon="save">Save Settings</a-button>
-                        <a-button type="danger" :disabled="!saveBtnDisable" @click="restartPanel" icon="reload">Restart Panel</a-button>
-                    </a-space>
-                    <div class="settings-panel">
+            <div class="settings-container">
+                <a-spin :spinning="spinning" :delay="300" tip="Loading settings...">
+                    <!-- Actions Header Toolbar -->
+                    <div class="settings-action-bar">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <a-icon type="setting" style="font-size: 20px; color: #ffffff;"></a-icon>
+                            <div>
+                                <span style="font-size: 16px; font-weight: 700; color: #ffffff;">System & Security Configuration</span>
+                                <div style="font-size: 12px; color: var(--text-muted);">Configure web listener, SSL encryption, admin access, and core parameters.</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <a-button type="primary" :disabled="saveBtnDisable" @click="updateAllSetting" icon="save"
+                                      style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
+                                Save Configuration
+                            </a-button>
+                            <a-button type="danger" @click="restartPanel" icon="reload">
+                                Restart Service
+                            </a-button>
+                        </div>
+                    </div>
+
+                    <!-- Main Settings Panels -->
+                    <div class="settings-main-card">
                         <a-tabs default-active-key="1" style="padding: 16px 20px 0;">
-                            <a-tab-pane key="1" tab="Panel Settings">
+                            <!-- Panel Network & SSL -->
+                            <a-tab-pane key="1" tab="Panel Network & SSL">
                                 <a-list item-layout="horizontal">
-                                    <setting-list-item type="text" title="Panel Listen IP" desc="Leave blank to listen on all interfaces. Takes effect after restart." v-model="allSetting.webListen"></setting-list-item>
-                                    <setting-list-item type="number" title="Panel Port" desc="Takes effect after restart." v-model.number="allSetting.webPort"></setting-list-item>
-                                    <setting-list-item type="text" title="SSL Certificate File Path" desc="Absolute path to public certificate (.crt / .pem). Takes effect after restart." v-model="allSetting.webCertFile"></setting-list-item>
-                                    <setting-list-item type="text" title="SSL Key File Path" desc="Absolute path to private key (.key). Takes effect after restart." v-model="allSetting.webKeyFile"></setting-list-item>
-                                    <setting-list-item type="text" title="Panel URL Base Path" desc="Must start and end with '/'. Takes effect after restart." v-model="allSetting.webBasePath"></setting-list-item>
+                                    <setting-list-item type="text" title="Listening IP" desc="Interface binding IP. Leave blank to bind to 0.0.0.0 (all interfaces)." v-model="allSetting.webListen"></setting-list-item>
+                                    <setting-list-item type="number" title="Web Port" desc="Port used to access the Aether VPN web panel." v-model.number="allSetting.webPort"></setting-list-item>
+                                    <setting-list-item type="text" title="SSL Certificate File (.crt / .pem)" desc="Absolute path to public certificate. Automatically configured by Certbot." v-model="allSetting.webCertFile"></setting-list-item>
+                                    <setting-list-item type="text" title="SSL Private Key File (.key)" desc="Absolute path to private key. Automatically configured by Certbot." v-model="allSetting.webKeyFile"></setting-list-item>
+                                    <setting-list-item type="text" title="Panel URL Base Path" desc="Root web base URL path. Must start and end with '/'. Default is '/'." v-model="allSetting.webBasePath"></setting-list-item>
                                 </a-list>
                             </a-tab-pane>
-                            <a-tab-pane key="2" tab="User Credentials">
-                                <a-form style="padding: 20px 0; max-width: 480px;">
-                                    <a-form-item label="Current Username">
-                                        <a-input v-model="user.oldUsername"></a-input>
-                                    </a-form-item>
-                                    <a-form-item label="Current Password">
-                                        <a-input type="password" v-model="user.oldPassword"></a-input>
-                                    </a-form-item>
-                                    <a-form-item label="New Username">
-                                        <a-input v-model="user.newUsername"></a-input>
-                                    </a-form-item>
-                                    <a-form-item label="New Password">
-                                        <a-input type="password" v-model="user.newPassword"></a-input>
-                                    </a-form-item>
-                                    <a-form-item>
-                                        <a-button type="primary" @click="updateUser">Update Credentials</a-button>
-                                    </a-form-item>
-                                </a-form>
+
+                            <!-- Admin Credentials -->
+                            <a-tab-pane key="2" tab="Admin Credentials">
+                                <div style="padding: 24px; max-width: 520px;">
+                                    <a-form layout="vertical">
+                                        <a-form-item label="Current Username">
+                                            <a-input v-model="user.oldUsername" placeholder="Enter current username"></a-input>
+                                        </a-form-item>
+                                        <a-form-item label="Current Password">
+                                            <a-input type="password" v-model="user.oldPassword" placeholder="Enter current password"></a-input>
+                                        </a-form-item>
+                                        <a-form-item label="New Username">
+                                            <a-input v-model="user.newUsername" placeholder="Enter new username"></a-input>
+                                        </a-form-item>
+                                        <a-form-item label="New Password">
+                                            <a-input type="password" v-model="user.newPassword" placeholder="Enter new password"></a-input>
+                                        </a-form-item>
+                                        <a-form-item style="margin-top: 16px;">
+                                            <a-button type="primary" @click="updateUser" icon="check" style="background: #ffffff !important; color: #000000 !important; font-weight: 700;">
+                                                Update Credentials
+                                            </a-button>
+                                        </a-form-item>
+                                    </a-form>
+                                </div>
                             </a-tab-pane>
-                            <a-tab-pane key="3" tab="Xray Core">
+
+                            <!-- Xray Core Config -->
+                            <a-tab-pane key="3" tab="Xray Core Template">
                                 <a-list item-layout="horizontal">
-                                    <setting-list-item type="textarea" title="Xray Config Template" desc="Template used to generate final Xray JSON configuration. Takes effect after restart." v-model="allSetting.xrayTemplateConfig"></setting-list-item>
+                                    <setting-list-item type="textarea" title="Xray Configuration Template" desc="Template used by the panel to generate Xray runtime config JSON." v-model="allSetting.xrayTemplateConfig"></setting-list-item>
                                 </a-list>
                             </a-tab-pane>
-                            <a-tab-pane key="4" tab="General">
+
+                            <!-- Certbot & SSL Automation -->
+                            <a-tab-pane key="4" tab="SSL & Certbot Automation">
+                                <div class="guide-box">
+                                    <h4 style="color: #ffffff; font-weight: 700; margin-bottom: 8px;">
+                                        <a-icon type="safety-certificate" style="color: var(--accent-emerald); margin-right: 6px;"></a-icon>
+                                        Automated Let's Encrypt SSL via Certbot
+                                    </h4>
+                                    <p style="color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 12px;">
+                                        Aether VPN integrates directly with Certbot to issue and automatically renew free Let's Encrypt certificates.
+                                        Certificates are automatically deployed to the panel database and web server with zero manual file copying.
+                                    </p>
+                                    <div style="font-size: 12px; font-weight: 700; color: #ffffff; text-transform: uppercase; margin-top: 14px;">
+                                        Run Certbot Wizard on Server:
+                                    </div>
+                                    <code class="guide-code">aether-vpn certbot</code>
+                                    <div style="font-size: 12px; color: var(--text-dim); margin-top: 8px;">
+                                        Certbot automatically registers renewal hooks in <code>/etc/letsencrypt/renewal-hooks/deploy/aether-vpn.sh</code> to re-apply certificates before expiration.
+                                    </div>
+                                </div>
+                            </a-tab-pane>
+
+                            <!-- General Settings -->
+                            <a-tab-pane key="5" tab="General & Timezone">
                                 <a-list item-layout="horizontal">
-                                    <setting-list-item type="text" title="Timezone" desc="Cron tasks and traffic reset schedules run according to this timezone." v-model="allSetting.timeLocation"></setting-list-item>
+                                    <setting-list-item type="text" title="Server Timezone" desc="Timezone utilized for traffic usage calculation and periodic tasks (e.g. Asia/Colombo, UTC, America/New_York)." v-model="allSetting.timeLocation"></setting-list-item>
                                 </a-list>
                             </a-tab-pane>
                         </a-tabs>
                     </div>
-                </a-space>
-            </a-spin>
+                </a-spin>
+            </div>
         </a-layout-content>
     </a-layout>
 </a-layout>
+
 {{template "js" .}}
 {{template "component/setting"}}
 <script>
@@ -95,7 +167,6 @@
         delimiters: ['[[', ']]'],
         el: '#app',
         data: {
-            siderDrawer,
             spinning: false,
             oldAllSetting: new AllSetting(),
             allSetting: new AllSetting(),
@@ -135,9 +206,9 @@
             async restartPanel() {
                 await new Promise(resolve => {
                     this.$confirm({
-                        title: 'Restart Panel',
-                        content: 'Are you sure you want to restart the panel? It will restart in 3 seconds.',
-                        okText: 'Confirm',
+                        title: 'Restart Aether VPN Panel',
+                        content: 'Are you sure you want to restart the panel service? It will restart in 3 seconds.',
+                        okText: 'Restart Now',
                         cancelText: 'Cancel',
                         onOk: () => resolve(),
                     });

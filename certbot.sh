@@ -146,18 +146,13 @@ EOF
         systemctl restart aether-vpn 2>/dev/null
     fi
 
-    local port=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "^port:" | awk '{print $2}')
-    [[ -z "$port" ]] && port="54321"
-
     echo ""
     green "=================================================================="
     green " SSL Certificate successfully applied to Aether VPN Dashboard! "
     green "=================================================================="
     cyan  " Certificate Path : $cert_file"
     cyan  " Private Key Path : $key_file"
-    echo ""
-    green " Panel is now secured with HTTPS at:"
-    green " https://${domain}:${port}"
+    green " HTTPS has been successfully activated for the panel."
     green "=================================================================="
     echo ""
 }

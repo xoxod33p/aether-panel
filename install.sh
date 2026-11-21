@@ -237,9 +237,8 @@ install_aether_vpn() {
     echo -e "aether-vpn log          - View logs"
     echo -e "aether-vpn update       - Update panel"
     echo -e "------------------------------------------------------------------------------"
-    show_login_info
     echo -e ""
-    yellow "(If you cannot access the web panel, run 'aether-vpn' in terminal and select option 17 to open firewall ports)"
+    yellow "(Run 'aether-vpn' in terminal to manage the panel or change settings)"
 }
 
 setup_ssl_prompt() {
@@ -256,23 +255,6 @@ setup_ssl_prompt() {
             rm -f /tmp/certbot.sh
         fi
     fi
-}
-
-show_login_info(){
-    local proto="http"
-    local cert_set=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "^certFile:" | awk '{print $2}')
-    [[ -n "$cert_set" && -f "$cert_set" ]] && proto="https"
-
-    if [[ -n $v4 && -z $v6 ]]; then
-        echo -e "Panel IPv4 login address: ${GREEN}${proto}://$v4:$config_port ${PLAIN}"
-    elif [[ -n $v6 && -z $v4 ]]; then
-        echo -e "Panel IPv6 login address: ${GREEN}${proto}://[$v6]:$config_port ${PLAIN}"
-    elif [[ -n $v4 && -n $v6 ]]; then
-        echo -e "Panel IPv4 login address: ${GREEN}${proto}://$v4:$config_port ${PLAIN}"
-        echo -e "Panel IPv6 login address: ${GREEN}${proto}://[$v6]:$config_port ${PLAIN}"
-    fi
-    echo -e "Username: ${GREEN}$config_account ${PLAIN}"
-    echo -e "Password: ${GREEN}$config_password ${PLAIN}"
 }
 
 install_aether_vpn $1

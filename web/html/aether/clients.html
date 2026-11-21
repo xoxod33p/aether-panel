@@ -162,8 +162,7 @@
         <a-layout-content class="cyber-content">
             <a-spin :spinning="loading" tip="Loading clients...">
                 <div class="clients-container">
-                    <!-- Top Telemetry & Controls Toolbar -->
-                    <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px 24px; margin-bottom: 24px; box-shadow: var(--shadow-card);">
+                                        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 18px 24px; margin-bottom: 24px; box-shadow: var(--shadow-card);">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
                             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
                                 <div>
@@ -196,12 +195,10 @@
                         </div>
                     </div>
 
-                    <!-- Client Cards Grid -->
-                    <div v-if="filteredClients.length > 0" class="client-card-grid">
+                                        <div v-if="filteredClients.length > 0" class="client-card-grid">
                         <div v-for="(item, idx) in filteredClients" :key="idx" class="client-card">
                             <div>
-                                <!-- Header -->
-                                <div class="client-card-header">
+                                                                <div class="client-card-header">
                                     <div class="client-avatar" :style="getProtocolAvatarStyle(item.protocol)">
                                         <a-icon :type="getProtocolIcon(item.protocol)"></a-icon>
                                     </div>
@@ -225,8 +222,7 @@
                                     </div>
                                 </div>
 
-                                <!-- UUID / Access Key -->
-                                <div class="client-key-row" :title="item.id">
+                                                                <div class="client-key-row" :title="item.id">
                                     <div style="display: flex; align-items: center; gap: 6px; overflow: hidden;">
                                         <a-icon type="key" style="color: var(--text-dim);"></a-icon>
                                         <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -238,8 +234,7 @@
                                     </button>
                                 </div>
 
-                                <!-- Usage / Bandwidth Quota Box -->
-                                <div class="client-usage-box">
+                                                                <div class="client-usage-box">
                                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                         <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px;">
                                             DATA CONSUMPTION
@@ -268,8 +263,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Expiry Date -->
-                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">
+                                                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-dim); margin-bottom: 4px;">
                                     <span>Expiration:</span>
                                     <span style="font-family: 'JetBrains Mono', monospace; color: #ffffff;">
                                         [[ item.expiryTime > 0 ? formatTime(item.expiryTime) : 'Perpetual (Never)' ]]
@@ -277,8 +271,7 @@
                                 </div>
                             </div>
 
-                            <!-- Action Buttons -->
-                            <div class="client-actions">
+                                                        <div class="client-actions">
                                 <a-button class="action-btn-primary" icon="qrcode" @click="showClientQr(item)">
                                     Show QR Code
                                 </a-button>
@@ -289,8 +282,7 @@
                         </div>
                     </div>
 
-                    <!-- Empty State -->
-                    <div v-else style="background: var(--bg-card); border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 60px 20px; text-align: center; margin-top: 20px;">
+                                        <div v-else style="background: var(--bg-card); border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg); padding: 60px 20px; text-align: center; margin-top: 20px;">
                         <a-icon type="team" style="font-size: 48px; color: var(--text-dim); margin-bottom: 16px;"></a-icon>
                         <div style="font-size: 16px; font-weight: 700; color: #ffffff; margin-bottom: 8px;">No Clients Found</div>
                         <div style="font-size: 13px; color: var(--text-muted); max-width: 440px; margin: 0 auto 20px;">

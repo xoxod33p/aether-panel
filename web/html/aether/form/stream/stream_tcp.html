@@ -1,5 +1,4 @@
 {{define "form/streamTCP"}}
-<!-- tcp type -->
 <a-form layout="inline">
     <a-form-item label="HTTP Camouflage">
         <a-switch
@@ -9,7 +8,6 @@
     </a-form-item>
 </a-form>
 
-<!-- tcp request -->
 <a-form v-if="inbound.stream.tcp.type === 'http'"
         layout="inline">
     <a-form-item label="Request Version">
@@ -46,7 +44,6 @@
     </a-form-item>
 </a-form>
 
-<!-- tcp response -->
 <a-form v-if="inbound.stream.tcp.type === 'http'"
         layout="inline">
     <a-form-item label="Response Version">

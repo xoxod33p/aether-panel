@@ -58,8 +58,7 @@
         <a-layout-content>
             <div class="settings-container">
                 <a-spin :spinning="spinning" :delay="300" tip="Loading settings...">
-                    <!-- Actions Header Toolbar -->
-                    <div class="settings-action-bar">
+                                        <div class="settings-action-bar">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <a-icon type="setting" style="font-size: 20px; color: #ffffff;"></a-icon>
                             <div>
@@ -79,11 +78,9 @@
                         </div>
                     </div>
 
-                    <!-- Main Settings Panels -->
-                    <div class="settings-main-card">
+                                        <div class="settings-main-card">
                         <a-tabs default-active-key="1" style="padding: 16px 20px 0;">
-                            <!-- Panel Network & SSL -->
-                            <a-tab-pane key="1" tab="Panel Network & SSL">
+                                                        <a-tab-pane key="1" tab="Panel Network & SSL">
                                 <a-list item-layout="horizontal">
                                     <setting-list-item type="text" title="Listening IP" desc="Interface binding IP. Leave blank to bind to 0.0.0.0 (all interfaces)." v-model="allSetting.webListen"></setting-list-item>
                                     <setting-list-item type="number" title="Web Port" desc="Port used to access the Aether VPN web panel." v-model.number="allSetting.webPort"></setting-list-item>
@@ -93,8 +90,7 @@
                                 </a-list>
                             </a-tab-pane>
 
-                            <!-- Admin Credentials -->
-                            <a-tab-pane key="2" tab="Admin Credentials">
+                                                        <a-tab-pane key="2" tab="Admin Credentials">
                                 <div style="padding: 24px; max-width: 520px;">
                                     <a-form layout="vertical">
                                         <a-form-item label="Current Username">
@@ -118,15 +114,13 @@
                                 </div>
                             </a-tab-pane>
 
-                            <!-- Xray Core Config -->
-                            <a-tab-pane key="3" tab="Xray Core Template">
+                                                        <a-tab-pane key="3" tab="Xray Core Template">
                                 <a-list item-layout="horizontal">
                                     <setting-list-item type="textarea" title="Xray Configuration Template" desc="Template used by the panel to generate Xray runtime config JSON." v-model="allSetting.xrayTemplateConfig"></setting-list-item>
                                 </a-list>
                             </a-tab-pane>
 
-                            <!-- Certbot & SSL Automation -->
-                            <a-tab-pane key="4" tab="SSL & Certbot Automation">
+                                                        <a-tab-pane key="4" tab="SSL & Certbot Automation">
                                 <div class="guide-box">
                                     <h4 style="color: #ffffff; font-weight: 700; margin-bottom: 8px;">
                                         <a-icon type="safety-certificate" style="color: var(--accent-emerald); margin-right: 6px;"></a-icon>
@@ -146,8 +140,7 @@
                                 </div>
                             </a-tab-pane>
 
-                            <!-- General Settings -->
-                            <a-tab-pane key="5" tab="General & Timezone">
+                                                        <a-tab-pane key="5" tab="General & Timezone">
                                 <a-list item-layout="horizontal">
                                     <setting-list-item type="text" title="Server Timezone" desc="Timezone utilized for traffic usage calculation and periodic tasks (e.g. Asia/Colombo, UTC, America/New_York)." v-model="allSetting.timeLocation"></setting-list-item>
                                 </a-list>

@@ -1,5 +1,4 @@
 {{define "form/inbound"}}
-<!-- base -->
 <a-form layout="vertical">
     <a-row :gutter="16">
         <a-col :xs="24" :sm="14">
@@ -43,8 +42,7 @@
         </a-col>
     </a-row>
 
-    <!-- Bandwidth Limitation section -->
-    <a-divider orientation="left" style="font-size: 13px; color: var(--text-muted); margin: 12px 0 16px;">User Bandwidth & Expiration</a-divider>
+        <a-divider orientation="left" style="font-size: 13px; color: var(--text-muted); margin: 12px 0 16px;">User Bandwidth & Expiration</a-divider>
 
     <a-row :gutter="16">
         <a-col :xs="24" :sm="12">
@@ -89,47 +87,38 @@
     </a-row>
 </a-form>
 
-<!-- vmess settings -->
 <template v-if="inbound.protocol === Protocols.VMESS">
     {{template "form/vmess"}}
 </template>
 
-<!-- vless settings -->
 <template v-if="inbound.protocol === Protocols.VLESS">
     {{template "form/vless"}}
 </template>
 
-<!-- trojan settings -->
 <template v-if="inbound.protocol === Protocols.TROJAN">
     {{template "form/trojan"}}
 </template>
 
-<!-- shadowsocks -->
 <template v-if="inbound.protocol === Protocols.SHADOWSOCKS">
     {{template "form/shadowsocks"}}
 </template>
 
-<!-- dokodemo-door -->
 <template v-if="inbound.protocol === Protocols.DOKODEMO">
     {{template "form/dokodemo"}}
 </template>
 
-<!-- socks -->
 <template v-if="inbound.protocol === Protocols.SOCKS">
     {{template "form/socks"}}
 </template>
 
-<!-- http -->
 <template v-if="inbound.protocol === Protocols.HTTP">
     {{template "form/http"}}
 </template>
 
-<!-- stream settings -->
 <template v-if="inbound.canEnableStream()">
     {{template "form/streamSettings"}}
 </template>
 
-<!-- tls settings -->
 <template v-if="inbound.canEnableTls()">
     {{template "form/tlsSettings"}}
 </template>

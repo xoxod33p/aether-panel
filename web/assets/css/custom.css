@@ -1,4 +1,3 @@
-/* Aether VPN - Cyber Obsidian Modern Design System */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
@@ -33,7 +32,6 @@
     --shadow-glow: 0 0 25px rgba(255, 255, 255, 0.08);
 }
 
-/* Global Reset & Base */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -53,7 +51,6 @@ body {
     background: var(--bg-canvas) !important;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -69,7 +66,6 @@ body {
     background: #3b4252;
 }
 
-/* Ant Layout Overrides */
 .ant-layout {
     background: var(--bg-canvas) !important;
 }
@@ -90,7 +86,6 @@ body {
     }
 }
 
-/* Sider Branding & Styling */
 .ant-layout-sider {
     background: var(--bg-surface) !important;
     border-right: 1px solid var(--border-subtle) !important;
@@ -141,7 +136,6 @@ body {
     transform: scale(1.03);
 }
 
-/* Sider Navigation Menu */
 .ant-menu-dark {
     background: transparent !important;
     border-right: none !important;
@@ -190,7 +184,6 @@ body {
     color: #ffffff !important;
 }
 
-/* Sider Footer */
 .sider-footer {
     margin-top: auto;
     padding: 16px;
@@ -210,7 +203,6 @@ body {
     border: 1px solid var(--border-subtle);
 }
 
-/* Global Top Navigation Bar */
 .aether-header {
     background: var(--bg-surface) !important;
     border-bottom: 1px solid var(--border-subtle) !important;
@@ -344,7 +336,6 @@ body {
     border-color: rgba(239, 68, 68, 0.3) !important;
 }
 
-/* Card System & Telemetry Grid */
 .telemetry-card {
     background: var(--bg-card) !important;
     border: 1px solid var(--border-subtle) !important;
@@ -414,7 +405,6 @@ body {
     margin-top: 2px;
 }
 
-/* Ant Progress Gauge Styling */
 .ant-progress-circle-trail {
     stroke: #181c24 !important;
 }
@@ -435,7 +425,6 @@ body {
     font-weight: 700 !important;
 }
 
-/* Ant Cards Overrides */
 .ant-card {
     background: var(--bg-card) !important;
     border: 1px solid var(--border-subtle) !important;
@@ -466,7 +455,6 @@ body {
     padding: 22px !important;
 }
 
-/* Buttons */
 .ant-btn {
     border-radius: var(--radius-sm) !important;
     font-weight: 600 !important;
@@ -516,7 +504,6 @@ body {
     border-color: #ef4444 !important;
 }
 
-/* Inputs, Number Inputs, Selects */
 .ant-input, .ant-input-number, .ant-select-selection {
     background: var(--bg-surface-elevated) !important;
     border: 1px solid var(--border-subtle) !important;
@@ -553,7 +540,6 @@ textarea::placeholder,
     font-size: 13px;
 }
 
-/* Ant Tags & Badges */
 .ant-tag {
     background: var(--bg-surface-elevated) !important;
     border: 1px solid var(--border-subtle) !important;
@@ -565,7 +551,6 @@ textarea::placeholder,
     line-height: 1.4 !important;
 }
 
-/* Ant Switch */
 .ant-switch {
     background-color: #262b36 !important;
 }
@@ -582,7 +567,6 @@ textarea::placeholder,
     color: #ffffff !important;
 }
 
-/* Modals */
 .ant-modal-content {
     background: var(--bg-surface) !important;
     border: 1px solid var(--border-strong) !important;
@@ -624,7 +608,6 @@ textarea::placeholder,
     padding: 16px 24px !important;
 }
 
-/* Fullscreen & Wide Modal Wrappers */
 .fullscreen-modal-wrap .ant-modal {
     width: 100vw !important;
     max-width: 100vw !important;
@@ -672,7 +655,6 @@ textarea::placeholder,
     padding: 24px 28px !important;
 }
 
-/* Dropdown & Select Dropdown */
 .ant-dropdown-menu, .ant-select-dropdown-menu {
     background: var(--bg-surface-elevated) !important;
     border: 1px solid var(--border-strong) !important;
@@ -716,7 +698,6 @@ textarea::placeholder,
     color: #000000 !important;
 }
 
-/* Inbound Cards View Grid */
 .inbound-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -827,7 +808,6 @@ textarea::placeholder,
     border: 1px solid var(--border-subtle);
 }
 
-/* User Bandwidth Limit Block */
 .bandwidth-box {
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
@@ -887,7 +867,6 @@ textarea::placeholder,
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* Client Key Quick Box */
 .client-key-row {
     display: flex;
     align-items: center;
@@ -902,7 +881,6 @@ textarea::placeholder,
     color: var(--text-muted);
 }
 
-/* Inbound Card Actions */
 .inbound-actions-row {
     display: flex;
     align-items: center;
@@ -923,7 +901,6 @@ textarea::placeholder,
     padding: 0;
 }
 
-/* View Mode Switcher */
 .view-mode-toggle {
     display: inline-flex;
     background: var(--bg-surface-elevated);
@@ -951,7 +928,6 @@ textarea::placeholder,
     color: #000000;
 }
 
-/* Settings Tabs Overhaul */
 .ant-tabs-nav .ant-tabs-tab {
     color: var(--text-muted) !important;
     font-weight: 600 !important;
@@ -993,7 +969,6 @@ textarea::placeholder,
     font-size: 12px !important;
 }
 
-/* Table View Overrides */
 .ant-table {
     background: var(--bg-card) !important;
     color: var(--text-main) !important;
@@ -1026,7 +1001,6 @@ textarea::placeholder,
     color: var(--text-dim) !important;
 }
 
-/* Info Modal Detail Rows */
 .info-detail-container {
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
@@ -1065,7 +1039,6 @@ textarea::placeholder,
     font-family: 'JetBrains Mono', monospace !important;
 }
 
-/* Suppress any Ant Design rogue drawer handles */
 .ant-drawer-handle,
 .ant-drawer {
     display: none !important;

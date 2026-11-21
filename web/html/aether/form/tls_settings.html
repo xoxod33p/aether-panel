@@ -1,5 +1,4 @@
 {{define "form/tlsSettings"}}
-<!-- tls enable -->
 <a-form layout="inline" v-if="inbound.canSetTls()">
     <a-form-item label="TLS">
         <a-switch v-model="inbound.tls" @change="onTlsChange">
@@ -13,7 +12,6 @@
     </a-tag>
 </a-form>
 
-<!-- tls settings -->
 <a-form v-if="inbound.tls || inbound.xtls"
         layout="inline">
     <a-form-item label="Domain (SNI)">

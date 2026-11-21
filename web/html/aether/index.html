@@ -99,8 +99,7 @@
             <div class="dashboard-container">
                 <a-spin :spinning="spinning" :delay="200" :tip="loadingTip"/>
 
-                <!-- Hero Status Strip -->
-                <transition name="list" appear>
+                                <transition name="list" appear>
                     <div class="hero-status-bar">
                         <div class="hero-status-left">
                             <div class="core-state-badge" :class="'core-state-' + status.xray.state">
@@ -144,11 +143,9 @@
                     </div>
                 </transition>
 
-                <!-- 4 Hero Resource Telemetry Cards -->
-                <transition name="list" appear>
+                                <transition name="list" appear>
                     <a-row :gutter="[20, 20]" style="margin-bottom: 24px;">
-                        <!-- CPU -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="telemetry-card">
                                 <div class="telemetry-header">
                                     <span class="telemetry-title">
@@ -165,8 +162,7 @@
                             </div>
                         </a-col>
 
-                        <!-- RAM -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="telemetry-card">
                                 <div class="telemetry-header">
                                     <span class="telemetry-title">
@@ -183,8 +179,7 @@
                             </div>
                         </a-col>
 
-                        <!-- Swap -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="telemetry-card">
                                 <div class="telemetry-header">
                                     <span class="telemetry-title">
@@ -201,8 +196,7 @@
                             </div>
                         </a-col>
 
-                        <!-- Disk -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="telemetry-card">
                                 <div class="telemetry-header">
                                     <span class="telemetry-title">
@@ -221,11 +215,9 @@
                     </a-row>
                 </transition>
 
-                <!-- Network Telemetry & Socket Metrics -->
-                <transition name="list" appear>
+                                <transition name="list" appear>
                     <a-row :gutter="[20, 20]">
-                        <!-- Upload Real-time -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="net-stat-card">
                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
@@ -240,8 +232,7 @@
                             </div>
                         </a-col>
 
-                        <!-- Download Real-time -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="net-stat-card">
                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
@@ -256,8 +247,7 @@
                             </div>
                         </a-col>
 
-                        <!-- Socket Connections -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="net-stat-card">
                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
@@ -272,8 +262,7 @@
                             </div>
                         </a-col>
 
-                        <!-- Lifetime Traffic -->
-                        <a-col :xs="24" :sm="12" :lg="6">
+                                                <a-col :xs="24" :sm="12" :lg="6">
                             <div class="net-stat-card">
                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <span style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
@@ -293,8 +282,7 @@
         </a-layout-content>
     </a-layout>
 
-    <!-- Version Switcher Modal -->
-    <a-modal id="version-modal" v-model="versionModal.visible" title="Switch Xray Core Version"
+        <a-modal id="version-modal" v-model="versionModal.visible" title="Switch Xray Core Version"
              :closable="true" @ok="() => versionModal.visible = false"
              ok-text="Done" cancel-text="Cancel" width="540px">
         <div style="margin-bottom: 16px;">

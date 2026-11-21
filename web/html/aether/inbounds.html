@@ -102,8 +102,7 @@
         <a-layout-content>
             <div class="inbounds-container">
                 <a-spin :spinning="spinning" :delay="300" tip="Loading inbounds...">
-                    <!-- Top Statistics Ribbon -->
-                    <transition name="list" appear>
+                                        <transition name="list" appear>
                         <a-row :gutter="[16, 16]">
                             <a-col :xs="24" :sm="12" :lg="6">
                                 <div class="stat-badge-card">
@@ -171,8 +170,7 @@
                         </a-row>
                     </transition>
 
-                    <!-- Filter & Action Toolbar -->
-                    <div class="filter-toolbar">
+                                        <div class="filter-toolbar">
                         <div class="proto-filter-chips">
                             <span class="filter-chip" :class="{ active: protocolFilter === 'ALL' }" @click="protocolFilter = 'ALL'">
                                 All ([[ dbInbounds.length ]])
@@ -201,14 +199,12 @@
                         </div>
                     </div>
 
-                    <!-- CARDS VIEW -->
-                    <div>
+                                        <div>
                         <div class="inbound-card-grid">
                             <div v-for="(dbInbound, index) in filteredInbounds" :key="dbInbound.id"
                                  class="inbound-card" :class="{ 'is-disabled': !dbInbound.enable }">
                                 <div>
-                                    <!-- Top Row: Protocol, Remark, Switch -->
-                                    <div class="inbound-card-top">
+                                                                        <div class="inbound-card-top">
                                         <div class="inbound-card-title-group">
                                             <div class="status-dot-pulse" :style="{ background: dbInbound.enable ? '#10b981' : '#64748b', boxShadow: dbInbound.enable ? '0 0 6px #10b981' : 'none' }"></div>
                                             <span class="inbound-card-title" :title="dbInbound.remark || 'Inbound #' + dbInbound.id">
@@ -219,8 +215,7 @@
                                         <a-switch v-model="dbInbound.enable" @change="switchEnable(dbInbound)" size="small"></a-switch>
                                     </div>
 
-                                    <!-- Protocol & Network Specs Badges -->
-                                    <div class="inbound-pills-row">
+                                                                        <div class="inbound-pills-row">
                                         <span class="proto-badge" :class="'proto-' + dbInbound.protocol.toLowerCase()">
                                             [[ dbInbound.protocol.toUpperCase() ]]
                                         </span>
@@ -239,8 +234,7 @@
                                         </a-tag>
                                     </div>
 
-                                    <!-- Bandwidth Quota Management Card -->
-                                    <div class="bandwidth-box">
+                                                                        <div class="bandwidth-box">
                                         <div class="bandwidth-top-row">
                                             <span style="font-weight: 700; color: var(--text-muted); font-size: 11px; letter-spacing: 0.5px;">
                                                 BANDWIDTH CONSUMPTION
@@ -268,8 +262,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons Row -->
-                                <div class="inbound-actions-row">
+                                                                <div class="inbound-actions-row">
                                     <a-button icon="team" @click="location.href='{{ .base_path }}aether/clients'">
                                         Clients
                                     </a-button>
@@ -302,8 +295,7 @@
                             </div>
                         </div>
 
-                        <!-- Empty State -->
-                        <div v-if="filteredInbounds.length === 0" style="text-align: center; padding: 70px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-subtle); margin-top: 20px;">
+                                                <div v-if="filteredInbounds.length === 0" style="text-align: center; padding: 70px 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-subtle); margin-top: 20px;">
                             <a-icon type="gateway" style="font-size: 48px; color: var(--text-dim); margin-bottom: 16px;"></a-icon>
                             <h3 style="color: #ffffff; margin-bottom: 6px; font-weight: 700;">No Inbounds Found</h3>
                             <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 13px;">Create an inbound endpoint to start proxying traffic.</p>

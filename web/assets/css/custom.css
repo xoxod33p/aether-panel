@@ -124,16 +124,16 @@ body {
 }
 
 .sider-brand .brand-logo-img {
-    width: 175px !important;
-    max-width: 90% !important;
+    width: 200px !important;
+    max-width: 95% !important;
     height: auto !important;
-    max-height: 95px !important;
+    max-height: 110px !important;
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
     object-fit: contain !important;
-    filter: drop-shadow(0 4px 18px rgba(168, 85, 247, 0.35)) !important;
+    filter: drop-shadow(0 4px 18px rgba(168, 85, 247, 0.4)) !important;
     transition: transform 0.25s ease !important;
 }
 
@@ -424,8 +424,13 @@ body {
 }
 
 .ant-progress-text,
-.ant-progress-circle .ant-progress-text {
+.ant-progress-circle .ant-progress-text,
+.ant-progress-dashboard .ant-progress-text,
+.ant-progress-inner .ant-progress-text,
+.ant-progress .ant-progress-text,
+.telemetry-card .ant-progress-text {
     color: #ffffff !important;
+    fill: #ffffff !important;
     font-family: 'JetBrains Mono', monospace !important;
     font-weight: 700 !important;
 }
@@ -647,14 +652,20 @@ textarea::placeholder,
 
 .ant-select-dropdown-menu-item-selected {
     background: #ffffff !important;
-    color: #0b0f17 !important;
+    color: #000000 !important;
     font-weight: 700 !important;
+}
+
+.ant-select-dropdown-menu-item-selected *,
+.ant-select-dropdown-menu-item-selected:hover *,
+.ant-select-dropdown-menu-item-selected.ant-select-dropdown-menu-item-active * {
+    color: #000000 !important;
 }
 
 .ant-select-dropdown-menu-item-selected:hover,
 .ant-select-dropdown-menu-item-selected.ant-select-dropdown-menu-item-active {
     background: #f1f5f9 !important;
-    color: #0b0f17 !important;
+    color: #000000 !important;
 }
 
 /* Inbound Cards View Grid */

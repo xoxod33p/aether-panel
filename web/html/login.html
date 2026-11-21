@@ -186,8 +186,10 @@
     <div class="login-card">
         <div class="glow-orb"></div>
         <div class="login-header">
-            <div class="logo-container">
-                <img src="{{ .base_path }}assets/images/logo.png" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/icon.png';">
+            <div class="logo-container" style="background: transparent !important; border: none !important; box-shadow: none !important; width: 240px !important; height: auto !important; margin: 0 auto 16px !important; padding: 0 !important;">
+                <img src="{{ .base_path }}assets/images/logo.png" alt="Aether VPN" 
+                     style="width: 240px; max-width: 100%; height: auto; max-height: 120px; background: transparent !important; border: none !important; padding: 0 !important; filter: drop-shadow(0 4px 20px rgba(168, 85, 247, 0.45)); object-fit: contain;"
+                     onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/icon.png';">
             </div>
             <p>Admin Authentication Center</p>
         </div>

@@ -4,7 +4,7 @@
     <a-row :gutter="16">
         <a-col :xs="24" :sm="14">
             <a-form-item label='{{ i18n "remark" }} / User Tag'>
-                <a-input v-model.trim="dbInbound.remark" placeholder="e.g. User-01 / Office Proxy"></a-input>
+                <a-input v-model.trim="dbInbound.remark"></a-input>
             </a-form-item>
         </a-col>
         <a-col :xs="12" :sm="6">
@@ -24,7 +24,7 @@
     <a-row :gutter="16">
         <a-col :xs="12" :sm="8">
             <a-form-item label="Port">
-                <a-input type="number" v-model.number="inbound.port" placeholder="Port (e.g. 54321)"></a-input>
+                <a-input type="number" v-model.number="inbound.port"></a-input>
             </a-form-item>
         </a-col>
         <a-col :xs="12" :sm="16">

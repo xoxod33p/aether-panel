@@ -983,3 +983,9 @@ body {
 .font-mono {
     font-family: 'JetBrains Mono', monospace !important;
 }
+
+/* Suppress any Ant Design rogue drawer handles */
+.ant-drawer-handle,
+.ant-drawer {
+    display: none !important;
+}

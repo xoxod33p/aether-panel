@@ -11,17 +11,21 @@
     <a-icon type="setting"></a-icon>
     <span>Panel Settings</span>
 </a-menu-item>
+<a-menu-item key="{{ .base_path }}logout">
+    <a-icon type="logout"></a-icon>
+    <span>Logout</span>
+</a-menu-item>
 {{end}}
 
 {{define "commonSider"}}
-<!-- Desktop Layout Sider -->
-<a-layout-sider id="sider" width="250" breakpoint="lg" collapsed-width="0">
+<!-- Layout Sider -->
+<a-layout-sider id="sider" width="250" breakpoint="md" collapsed-width="0">
     <div class="sider-container">
         <div class="sider-brand">
             <img src="{{ .base_path }}assets/images/icon.png" class="brand-logo-img" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/favicon.svg';">
             <div class="brand-info">
                 <span class="brand-title">Aether VPN</span>
-                <span class="brand-badge">MESH PANEL</span>
+                <span class="brand-badge">PANEL</span>
             </div>
         </div>
         <a-menu theme="dark" mode="inline" :selected-keys="['{{ .request_uri }}']"
@@ -36,58 +40,11 @@
         </div>
     </div>
 </a-layout-sider>
-
-<!-- Mobile Navigation Drawer -->
-<a-drawer placement="left" :closable="false" :visible="drawerVisible" @close="drawerVisible = false"
-          wrap-class-name="mobile-drawer-wrap" :width="260" :body-style="{ padding: '0', background: '#0c0e12', height: '100%' }">
-    <div class="sider-container" style="height: 100%;">
-        <div class="sider-brand">
-            <img src="{{ .base_path }}assets/images/icon.png" class="brand-logo-img" alt="Aether VPN" onerror="this.onerror=null;this.src='{{ .base_path }}assets/images/favicon.svg';">
-            <div class="brand-info">
-                <span class="brand-title">Aether VPN</span>
-                <span class="brand-badge">MOBILE NAVIGATION</span>
-            </div>
-        </div>
-        <a-menu theme="dark" mode="inline" :selected-keys="['{{ .request_uri }}']"
-                @click="({key}) => { drawerVisible = false; key.startsWith('http') ? window.open(key) : location.href = key; }">
-            {{template "menuItems" .}}
-        </a-menu>
-        <div class="sider-footer">
-            <a-button block type="danger" @click="location.href='{{ .base_path }}logout'" icon="logout">
-                Logout Session
-            </a-button>
-        </div>
-    </div>
-</a-drawer>
-
-<script>
-    Vue.mixin({
-        data() {
-            return {
-                drawerVisible: false,
-                globalClock: '',
-            };
-        },
-        mounted() {
-            this.updateGlobalClock();
-            setInterval(this.updateGlobalClock, 1000);
-        },
-        methods: {
-            updateGlobalClock() {
-                const d = new Date();
-                this.globalClock = d.toTimeString().split(' ')[0];
-            }
-        }
-    });
-</script>
 {{end}}
 
 {{define "commonHeader"}}
 <a-layout-header class="aether-header">
     <div class="header-left">
-        <a-button type="link" class="mobile-menu-trigger" @click="drawerVisible = true">
-            <a-icon type="menu" style="font-size: 18px;"></a-icon>
-        </a-button>
         <div class="header-title-box">
             <span class="header-page-title">{{ .title }}</span>
             <span class="header-status-pill">
@@ -97,10 +54,6 @@
         </div>
     </div>
     <div class="header-right">
-        <div class="header-clock">
-            <a-icon type="clock-circle" style="color: var(--text-dim);"></a-icon>
-            <span>[[ globalClock ]]</span>
-        </div>
         <a-button class="header-logout-btn" icon="logout" @click="location.href='{{ .base_path }}logout'">
             Logout
         </a-button>

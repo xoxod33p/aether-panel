@@ -271,12 +271,18 @@
                                 </div>
                             </div>
 
-                                                        <div class="client-actions">
+                            <div class="client-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
                                 <a-button class="action-btn-primary" icon="qrcode" @click="showClientQr(item)">
-                                    Show QR Code
+                                    QR
                                 </a-button>
                                 <a-button class="action-btn-secondary" icon="copy" @click="copyClientLink(item)" title="Copy Share Link">
-                                    Copy Link
+                                    Link
+                                </a-button>
+                                <a-button icon="reload" @click="resetClientUsage(item)" title="Reset client consumed bandwidth counters back to 0" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #ffffff;">
+                                    Reset Usage
+                                </a-button>
+                                <a-button icon="dashboard" @click="openClientLimitModal(item)" title="Adjust or reset bandwidth quota limit (GB)" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: var(--accent-cyan);">
+                                    Reset Limit
                                 </a-button>
                             </div>
                         </div>
@@ -299,6 +305,59 @@
     </a-layout>
 </a-layout>
 
+<a-modal id="client-limit-modal" v-model="limitModal.visible" title="Reset & Manage Client Limit"
+         @ok="saveClientLimit" :confirm-loading="limitModal.loading"
+         ok-text="Save Limit" cancel-text="Cancel" width="520px" :dialog-style="{ top: '60px' }">
+    <div v-if="limitModal.item" style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="background: var(--bg-surface-elevated); padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="font-weight: 700; color: #ffffff; font-size: 15px; margin-bottom: 4px;">
+                [[ limitModal.item.email ]]
+            </div>
+            <div style="font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;">
+                [[ limitModal.item.protocol.toUpperCase() ]] &bull; Port [[ limitModal.item.port ]] &bull; ID: [[ limitModal.item.id ]]
+            </div>
+        </div>
+
+        <div>
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;">
+                Bandwidth Limit (GB)
+            </label>
+            <a-input-number v-model="limitModal.totalGB" :min="0" style="width: 100%;" placeholder="0 = Unlimited"></a-input-number>
+            <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                <a-tag style="cursor: pointer;" @click="limitModal.totalGB = 0">Unlimited (0)</a-tag>
+                <a-tag style="cursor: pointer;" @click="limitModal.totalGB = 10">10 GB</a-tag>
+                <a-tag style="cursor: pointer;" @click="limitModal.totalGB = 30">30 GB</a-tag>
+                <a-tag style="cursor: pointer;" @click="limitModal.totalGB = 50">50 GB</a-tag>
+                <a-tag style="cursor: pointer;" @click="limitModal.totalGB = 100">100 GB</a-tag>
+                <a-tag style="cursor: pointer;" @click="limitModal.totalGB = 500">500 GB</a-tag>
+            </div>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px dashed var(--border-subtle); padding: 12px 14px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <div style="font-size: 12px; color: var(--text-muted);">Current Consumed Traffic</div>
+                <div style="font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #ffffff;">
+                    [[ sizeFormat(limitModal.item.up + limitModal.item.down) ]]
+                </div>
+            </div>
+            <a-button type="danger" ghost size="small" icon="reload" @click="resetCurrentClientTraffic" style="font-weight: 600;">
+                Clear to 0 MB
+            </a-button>
+        </div>
+
+        <div>
+            <label style="font-size: 13px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;">
+                Client Expiration Date
+            </label>
+            <a-date-picker :show-time="{ format: 'HH:mm' }" format="YYYY-MM-DD HH:mm"
+                           v-model="limitModal.expiryMoment" style="width: 100%;" placeholder="Never Expires"></a-date-picker>
+            <div style="margin-top: 6px;">
+                <a-tag v-if="limitModal.expiryMoment" style="cursor: pointer;" @click="limitModal.expiryMoment = null">Clear Expiration</a-tag>
+            </div>
+        </div>
+    </div>
+</a-modal>
+
 {{template "js" .}}
 {{template "qrcodeModal"}}
 <script>
@@ -310,7 +369,14 @@
             searchKey: '',
             filterProtocol: 'all',
             inbounds: [],
-            clients: []
+            clients: [],
+            limitModal: {
+                visible: false,
+                loading: false,
+                item: null,
+                totalGB: 0,
+                expiryMoment: null
+            }
         },
         computed: {
             activeClientsCount() {
@@ -501,6 +567,124 @@
             },
             formatTime(time) {
                 return DateUtil.formatMillis(time);
+            },
+            resetClientUsage(item) {
+                this.$confirm({
+                    title: 'Reset Client Data Usage',
+                    content: `Reset accumulated data usage for "${item.email}" back to 0 MB? Their quota limit will stay intact and they will be unblocked immediately.`,
+                    okText: 'Reset to 0 MB',
+                    cancelText: 'Cancel',
+                    onOk: async () => {
+                        try {
+                            await this.updateClientRecord(item, { up: 0, down: 0 });
+                            this.$message.success(`Data usage for ${item.email} reset to 0 MB`);
+                        } catch (e) {
+                            this.$message.error('Failed to reset usage');
+                        }
+                    }
+                });
+            },
+            openClientLimitModal(item) {
+                this.limitModal.item = item;
+                this.limitModal.totalGB = item.totalGB || 0;
+                this.limitModal.expiryMoment = item.expiryTime > 0 ? moment(item.expiryTime) : null;
+                this.limitModal.visible = true;
+            },
+            async resetCurrentClientTraffic() {
+                if (!this.limitModal.item) return;
+                try {
+                    await this.updateClientRecord(this.limitModal.item, { up: 0, down: 0 });
+                    this.limitModal.item.up = 0;
+                    this.limitModal.item.down = 0;
+                    this.$message.success('Client traffic usage cleared to 0 MB');
+                } catch (e) {
+                    this.$message.error('Failed to clear traffic');
+                }
+            },
+            async saveClientLimit() {
+                if (!this.limitModal.item) return;
+                this.limitModal.loading = true;
+                try {
+                    const totalGB = Number(this.limitModal.totalGB) || 0;
+                    const expiryTime = this.limitModal.expiryMoment ? this.limitModal.expiryMoment.valueOf() : 0;
+                    await this.updateClientRecord(this.limitModal.item, { totalGB, expiryTime });
+                    this.limitModal.visible = false;
+                    this.$message.success('Client limit updated successfully');
+                } catch (e) {
+                    this.$message.error('Failed to update client limit');
+                } finally {
+                    this.limitModal.loading = false;
+                }
+            },
+            async updateClientRecord(item, updates) {
+                const dbInbound = item.dbInbound;
+                let settings = {};
+                try {
+                    settings = JSON.parse(dbInbound.settings || '{}');
+                } catch (e) {
+                    settings = {};
+                }
+
+                let found = false;
+                const updateTarget = (client) => {
+                    if (updates.up !== undefined) client.up = updates.up;
+                    if (updates.down !== undefined) client.down = updates.down;
+                    if (updates.totalGB !== undefined) client.totalGB = updates.totalGB;
+                    if (updates.expiryTime !== undefined) client.expiryTime = updates.expiryTime;
+                    found = true;
+                };
+
+                if (Array.isArray(settings.clients)) {
+                    for (const c of settings.clients) {
+                        if ((c.id && c.id === item.id) || (c.password && c.password === item.id) || (c.email && c.email === item.email)) {
+                            updateTarget(c);
+                            break;
+                        }
+                    }
+                } else if (Array.isArray(settings.vlesses)) {
+                    for (const c of settings.vlesses) {
+                        if ((c.id && c.id === item.id) || (c.email && c.email === item.email)) {
+                            updateTarget(c);
+                            break;
+                        }
+                    }
+                } else if (Array.isArray(settings.vmesses)) {
+                    for (const c of settings.vmesses) {
+                        if ((c.id && c.id === item.id) || (c.email && c.email === item.email)) {
+                            updateTarget(c);
+                            break;
+                        }
+                    }
+                } else if (settings.password) {
+                    updateTarget(settings);
+                }
+
+                if (!found) {
+                    throw new Error('Client not found');
+                }
+
+                const inbound = dbInbound.toInbound();
+                const data = {
+                    up: dbInbound.up,
+                    down: dbInbound.down,
+                    total: dbInbound.total,
+                    remark: dbInbound.remark,
+                    enable: dbInbound.enable,
+                    expiryTime: dbInbound.expiryTime,
+                    listen: inbound.listen,
+                    port: inbound.port,
+                    protocol: inbound.protocol,
+                    settings: JSON.stringify(settings),
+                    streamSettings: inbound.stream.toString(),
+                    sniffing: inbound.canSniffing() ? inbound.sniffing.toString() : '{}',
+                };
+
+                const msg = await HttpUtil.post(`/aether/inbound/update/${dbInbound.id}`, data);
+                if (msg.success) {
+                    await this.getInbounds();
+                } else {
+                    throw new Error(msg.msg || 'Update failed');
+                }
             }
         }
     });

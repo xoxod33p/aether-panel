@@ -146,7 +146,7 @@ EOF
         systemctl restart aether-vpn 2>/dev/null
     fi
 
-    local port=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "port:" | awk '{print $2}')
+    local port=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "^port:" | awk '{print $2}')
     [[ -z "$port" ]] && port="54321"
 
     echo ""
@@ -192,8 +192,20 @@ issue_standalone() {
         -d "$domain"
 
     if [[ $? -eq 0 && -f "/etc/letsencrypt/live/${domain}/fullchain.pem" ]]; then
-        green "Certificate issued successfully for $domain!"
-        apply_cert_to_panel "$domain"
+        echo ""
+        green "=================================================================="
+        green " Certificate issued successfully for $domain!"
+        green "=================================================================="
+        cyan  " Certificate Path : /etc/letsencrypt/live/${domain}/fullchain.pem"
+        cyan  " Private Key Path : /etc/letsencrypt/live/${domain}/privkey.pem"
+        echo ""
+        read -rp "Do you want to automatically set these SSL certificates to the Aether VPN panel? [Y/n]: " set_panel_yn
+        [[ -z "$set_panel_yn" ]] && set_panel_yn="y"
+        if [[ $set_panel_yn =~ ^[Yy]$ ]]; then
+            apply_cert_to_panel "$domain"
+        else
+            yellow "Skipped setting certificates to panel. The panel will continue using current settings."
+        fi
     else
         red "Certificate issuance failed."
         yellow "Please ensure:"
@@ -259,10 +271,28 @@ EOF
         -d "$domain"
 
     local base_domain=$(echo "$domain" | sed 's/\*\.//')
+    local target_domain=""
     if [[ -f "/etc/letsencrypt/live/${domain}/fullchain.pem" ]]; then
-        apply_cert_to_panel "$domain"
+        target_domain="$domain"
     elif [[ -f "/etc/letsencrypt/live/${base_domain}/fullchain.pem" ]]; then
-        apply_cert_to_panel "$base_domain"
+        target_domain="$base_domain"
+    fi
+
+    if [[ -n "$target_domain" ]]; then
+        echo ""
+        green "=================================================================="
+        green " Certificate issued successfully for $target_domain!"
+        green "=================================================================="
+        cyan  " Certificate Path : /etc/letsencrypt/live/${target_domain}/fullchain.pem"
+        cyan  " Private Key Path : /etc/letsencrypt/live/${target_domain}/privkey.pem"
+        echo ""
+        read -rp "Do you want to automatically set these SSL certificates to the Aether VPN panel? [Y/n]: " set_panel_yn
+        [[ -z "$set_panel_yn" ]] && set_panel_yn="y"
+        if [[ $set_panel_yn =~ ^[Yy]$ ]]; then
+            apply_cert_to_panel "$target_domain"
+        else
+            yellow "Skipped setting certificates to panel. The panel will continue using current settings."
+        fi
     else
         red "Cloudflare DNS certificate issuance failed. Please check your API credentials."
     fi
@@ -304,13 +334,24 @@ revoke_certificate() {
 set_existing_cert() {
     echo ""
     read -rp "Enter the domain name configured under /etc/letsencrypt/live/: " domain
+    domain=$(echo "$domain" | tr -d ' ')
     if [[ -f "/etc/letsencrypt/live/${domain}/fullchain.pem" ]]; then
-        apply_cert_to_panel "$domain"
+        read -rp "Do you want to automatically set these SSL certificates to the Aether VPN panel? [Y/n]: " set_panel_yn
+        [[ -z "$set_panel_yn" ]] && set_panel_yn="y"
+        if [[ $set_panel_yn =~ ^[Yy]$ ]]; then
+            apply_cert_to_panel "$domain"
+        fi
     else
         red "Certificate files not found for ${domain}."
     fi
     back2menu
 }
+
+# Support direct command-line arguments: e.g. "certbot.sh apply <domain>"
+if [[ "$1" == "apply" && -n "$2" ]]; then
+    apply_cert_to_panel "$2"
+    exit $?
+fi
 
 menu() {
     clear
@@ -318,13 +359,13 @@ menu() {
 --------------------------------------------------------------------------------
    ${GREEN}AETHER VPN - SSL CERTIFICATE MANAGER (CERTBOT)${PLAIN}
 --------------------------------------------------------------------------------
-   ${GREEN}1.${PLAIN} Issue SSL Certificate via Standalone (Port 80) & Apply to Panel
-   ${GREEN}2.${PLAIN} Issue SSL Certificate via Cloudflare DNS API & Apply to Panel
+   ${GREEN}1.${PLAIN} Issue SSL Certificate via Standalone (Port 80)
+   ${GREEN}2.${PLAIN} Issue SSL Certificate via Cloudflare DNS API
 --------------------------------------------------------------------------------
    ${GREEN}3.${PLAIN} View Existing Certificates
    ${GREEN}4.${PLAIN} Force Renew All Certificates
    ${GREEN}5.${PLAIN} Revoke & Delete Certificate
-   ${GREEN}6.${PLAIN} Re-apply Existing Let's Encrypt Certificate to Panel
+   ${GREEN}6.${PLAIN} Set Existing Let's Encrypt Certificate to Panel
 --------------------------------------------------------------------------------
    ${GREEN}0.${PLAIN} Exit
 --------------------------------------------------------------------------------"

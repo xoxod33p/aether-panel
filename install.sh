@@ -209,6 +209,8 @@ install_aether_vpn() {
     systemctl start aether-vpn 
     systemctl restart aether-vpn
     
+    setup_ssl_prompt
+    
     cd $cur_dir
     rm -f install.sh
     clean_version=${last_version#v}
@@ -240,14 +242,34 @@ install_aether_vpn() {
     yellow "(If you cannot access the web panel, run 'aether-vpn' in terminal and select option 17 to open firewall ports)"
 }
 
+setup_ssl_prompt() {
+    echo ""
+    yellow "------------------------------------------------------------------------------"
+    yellow "SSL / HTTPS CONFIGURATION (CERTBOT)"
+    yellow "------------------------------------------------------------------------------"
+    read -rp "Do you want to configure an SSL certificate via Certbot now to automatically secure the panel with HTTPS? [y/N]: " ssl_yn
+    if [[ $ssl_yn =~ ^[Yy]$ ]]; then
+        if [[ -f /usr/local/aether-vpn/certbot.sh ]]; then
+            bash /usr/local/aether-vpn/certbot.sh
+        else
+            wget -N --no-check-certificate https://raw.githubusercontent.com/xoxod33p/aether-panel/main/certbot.sh -O /tmp/certbot.sh && bash /tmp/certbot.sh
+            rm -f /tmp/certbot.sh
+        fi
+    fi
+}
+
 show_login_info(){
+    local proto="http"
+    local cert_set=$(/usr/local/aether-vpn/aether-vpn setting -show 2>/dev/null | grep -i "^certFile:" | awk '{print $2}')
+    [[ -n "$cert_set" && -f "$cert_set" ]] && proto="https"
+
     if [[ -n $v4 && -z $v6 ]]; then
-        echo -e "Panel IPv4 login address: ${GREEN}http://$v4:$config_port ${PLAIN}"
+        echo -e "Panel IPv4 login address: ${GREEN}${proto}://$v4:$config_port ${PLAIN}"
     elif [[ -n $v6 && -z $v4 ]]; then
-        echo -e "Panel IPv6 login address: ${GREEN}http://[$v6]:$config_port ${PLAIN}"
+        echo -e "Panel IPv6 login address: ${GREEN}${proto}://[$v6]:$config_port ${PLAIN}"
     elif [[ -n $v4 && -n $v6 ]]; then
-        echo -e "Panel IPv4 login address: ${GREEN}http://$v4:$config_port ${PLAIN}"
-        echo -e "Panel IPv6 login address: ${GREEN}http://[$v6]:$config_port ${PLAIN}"
+        echo -e "Panel IPv4 login address: ${GREEN}${proto}://$v4:$config_port ${PLAIN}"
+        echo -e "Panel IPv6 login address: ${GREEN}${proto}://[$v6]:$config_port ${PLAIN}"
     fi
     echo -e "Username: ${GREEN}$config_account ${PLAIN}"
     echo -e "Password: ${GREEN}$config_password ${PLAIN}"
